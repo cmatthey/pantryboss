@@ -16,7 +16,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 /**
  *
@@ -26,6 +29,11 @@ public class GUIHelper {
 
     public static final int ROW_COUNT = 3;
     public static final int COL_COUNT = 3;
+    private int account_id;
+
+    public GUIHelper(int account_id) {
+        this.account_id = account_id;
+    }
 
     public JFrame initWindow(String title, int width, int height) {
         JFrame window = new JFrame();
@@ -84,11 +92,20 @@ public class GUIHelper {
     }
 
     public JPanel inventoryPanel() {
+        InventoryTableModel inventoryTableModel = new InventoryTableModel(account_id);
         JPanel card = new JPanel(new BorderLayout());
         // TODO: get data from model
-        JTable jTable = new JTable(ROW_COUNT, ROW_COUNT);
+        JTable jTable = new JTable(inventoryTableModel);
         JScrollPane jScrollPane = new JScrollPane(jTable);
         card.add(jScrollPane, BorderLayout.CENTER);
+
+        jTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                ListSelectionModel selectModel = (ListSelectionModel) e.getSource();
+                // TODO: Question: How to update value here?
+            }
+        });
         return card;
     }
 

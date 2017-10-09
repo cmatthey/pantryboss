@@ -13,13 +13,16 @@ import javax.swing.JFrame;
 public class Pantry {
 
     private JFrame window;
+    private int account_id;
 
-    public Pantry() {
-        GUIHelper gUIHelper = new GUIHelper();
+    public Pantry(int account_id) {
+        this.account_id = account_id;
+        GUIHelper gUIHelper = new GUIHelper(account_id);
         window = gUIHelper.initComponents();
     }
 
     public static void main(String[] args) {
-        Pantry pantry = new Pantry();
+        Pantry pantry = new Pantry(1);
+        //TODO: remove hard coded account_id
     }
 }
