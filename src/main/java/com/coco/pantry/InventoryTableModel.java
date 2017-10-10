@@ -5,6 +5,7 @@
 package com.coco.pantry;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
 import javax.sql.rowset.CachedRowSet;
@@ -19,45 +20,47 @@ public class InventoryTableModel extends AbstractTableModel {
 
     public static final String DATABASE_NAME = "pantry";
     public static final String EDIABLE_COLUMN_NAME = "quantity";
-    public static final String QUERY_STATEMENT = "SELECT inventory_id, item, quantity, recorder_point FROM inventory WHERE account_id = ";
+    public static final String QUERY_STATEMENT = "SELECT inventory_id, item, quantity, recorder_point FROM inventory WHERE account_id = %s";
     public static final String UPDATE_STATEMENT = "UPDATE inventory SET quantity = ? WHERE account_id = ? AND inventory_id = ?";
+
     private String username = System.getenv("MYSQL_USERNAME");
     private String password = System.getenv("MYSQL_PASSWORD");
     private SQLQuery sQLQuery = new SQLQuery(DATABASE_NAME, username, password);
+
     private int account_id;
-    private String queryStr;
-    private String updateStr;
-    private PreparedStatement preparedStatement;
-    private CachedRowSet cachedrowset;
+    private String queryStr = null;
+    private String updateStr = null;
+    private PreparedStatement preparedStatement = null;
+    private CachedRowSet cachedrowset = null;
+    private ResultSetMetaData metadata = null;
+    private int numcols = 0;
+    private int numrows = 0;
 
     public InventoryTableModel(int account_id) {
         this.account_id = account_id;
+        run();
     }
 
     private void run() {
-        queryStr = QUERY_STATEMENT + account_id;
+        queryStr = String.format(QUERY_STATEMENT, account_id);
         cachedrowset = sQLQuery.executeQuery(queryStr);
+        try {
+            metadata = cachedrowset.getMetaData();
+            numcols = metadata.getColumnCount();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        numrows = cachedrowset.size();
     }
 
     @Override
     public int getRowCount() {
-        if (cachedrowset == null) {
-            run();
-        }
-        return cachedrowset.size();
+        return numrows;
     }
 
     @Override
     public int getColumnCount() {
-        if (cachedrowset == null) {
-            run();
-        }
-        try {
-            return cachedrowset.getMetaData().getColumnCount();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return 0;
+        return numcols;
     }
 
     @Override
@@ -65,7 +68,7 @@ public class InventoryTableModel extends AbstractTableModel {
         try {
             cachedrowset.absolute(row + 1);
             Object o = cachedrowset.getObject(col + 1);
-            int type = cachedrowset.getMetaData().getColumnType(col + 1);
+            int type = metadata.getColumnType(col + 1);
             switch (type) {
                 case Types.TINYINT:
                 case Types.INTEGER:
@@ -84,9 +87,21 @@ public class InventoryTableModel extends AbstractTableModel {
     @Override
     public void setValueAt(Object value, int row, int col) {
         try {
-            cachedrowset.absolute(row + 1);
-            int inventory_id = cachedrowset.getInt("inventory_id");
-            sQLQuery.executeUpdateInventory(null, (int) value, account_id, inventory_id);
+            cachedrowset.moveToCurrentRow();// TODO: check this line The line is not edited correction
+            System.out.println(String.format("Set value at %d, %d", row + 1, col + 1));
+            switch (metadata.getColumnType(col + 1)) {
+                case Types.INTEGER:
+                    cachedrowset.updateObject(col + 1, Integer.parseInt((String) value));
+                    break;
+                case Types.VARCHAR:
+                    cachedrowset.updateObject(col + 1, (String) value);
+                    break;
+                default:
+                    cachedrowset.updateObject(col + 1, value);
+            }
+            // TODO: clean up the code
+//            int inventory_id = cachedrowset.getInt("inventory_id");
+//            sQLQuery.executeUpdateInventory(null, (int) value, account_id, inventory_id);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -95,8 +110,7 @@ public class InventoryTableModel extends AbstractTableModel {
     @Override
     public boolean isCellEditable(int row, int col) {
         try {
-            cachedrowset.absolute(row + 1);
-            String columnName = cachedrowset.getMetaData().getColumnName(col + 1);
+            String columnName = metadata.getColumnName(col + 1);
             if (columnName.equals(EDIABLE_COLUMN_NAME)) {
                 return true;
             }
@@ -109,7 +123,7 @@ public class InventoryTableModel extends AbstractTableModel {
     @Override
     public String getColumnName(int col) {
         try {
-            return cachedrowset.getMetaData().getColumnName(col + 1);
+            return metadata.getColumnName(col + 1);
         } catch (SQLException e) {
             e.printStackTrace();
         }

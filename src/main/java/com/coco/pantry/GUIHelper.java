@@ -54,19 +54,10 @@ public class GUIHelper {
         return GUIHelper.this.initWindow("", 600, 600);
     }
 
-    public JPanel cardsPanel() {
-        JPanel cards = new JPanel(new CardLayout());
-        cards.add(inventoryPanel(), "Stock");
-        cards.add(recipePanel(), "Cook");
-        cards.add(welcomePanel(), "Account");
-
-        cards.setBorder(BorderFactory.createLineBorder(Color.red, 10));
-//        card1.setBorder(BorderFactory.createLineBorder(Color.green, 30));
-//        card2.setBorder(BorderFactory.createLineBorder(Color.blue, 70));
-//        CardLayout c1 = (CardLayout) cards.getLayout();
-//        c1.show(cards, "Stock");
-
-        return cards;
+    public JFrame initComponents() {
+        JFrame window = initWindow("Pantry Boss", 600, 600);
+        window.setContentPane(cardsPanel());
+        return window;
     }
 
     public JPanel welcomePanel() {
@@ -93,6 +84,7 @@ public class GUIHelper {
 
     public JPanel inventoryPanel() {
         InventoryTableModel inventoryTableModel = new InventoryTableModel(account_id);
+//        InventoryTableController inventoryTableController = new InventoryTableController(this);
         JPanel card = new JPanel(new BorderLayout());
         // TODO: get data from model
         JTable jTable = new JTable(inventoryTableModel);
@@ -109,9 +101,18 @@ public class GUIHelper {
         return card;
     }
 
-    public JFrame initComponents() {
-        JFrame window = initWindow("Pantry Boss", 600, 600);
-        window.setContentPane(cardsPanel());
-        return window;
+    public JPanel cardsPanel() {
+        JPanel cards = new JPanel(new CardLayout());
+        cards.add(inventoryPanel(), "Stock");
+        cards.add(recipePanel(), "Cook");
+        cards.add(welcomePanel(), "Account");
+
+        cards.setBorder(BorderFactory.createLineBorder(Color.red, 10));
+//        card1.setBorder(BorderFactory.createLineBorder(Color.green, 30));
+//        card2.setBorder(BorderFactory.createLineBorder(Color.blue, 70));
+//        CardLayout c1 = (CardLayout) cards.getLayout();
+//        c1.show(cards, "Stock");
+
+        return cards;
     }
 }

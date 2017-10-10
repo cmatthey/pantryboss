@@ -19,45 +19,40 @@ import javax.sql.rowset.CachedRowSet;
  */
 public class SQLQuery {
 
+    static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
+
     private String databaseURL;
     private String username;
     private String password;
-
-    static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
+    private Connection connection = null;
+    private Statement statement = null;
+    private CachedRowSet cachedRowSet = null;
 
     public SQLQuery(String databaseName, String username, String password) {
-        databaseURL = "jdbc:mysql://localhost/" + databaseName + "?useSSL=false&useJDBCCompliantTimezoneShift=true&&serverTimezone=UTC";
+        databaseURL = String.format("jdbc:mysql://localhost/%s?useSSL=false&useJDBCCompliantTimezoneShift=true&&serverTimezone=UTC", databaseName);
         this.username = username;
         this.password = password;
     }
 
     public CachedRowSet executeQuery(String query) {
-        Connection connection = null;
-        Statement statement = null;
-        CachedRowSet cachedRowSet;
-
         try {
-            Class.forName(JDBC_DRIVER);
-
+            Class.forName(JDBC_DRIVER).newInstance();
+            System.out.println(JDBC_DRIVER + " is loaded");
             System.out.println("Connecting to database");
             connection = DriverManager.getConnection(databaseURL, username, password);
-
+            System.out.println("Connected successfully");
             System.out.println("Executing a query");
             statement = connection.createStatement();
             ResultSet result = statement.executeQuery(query);
             cachedRowSet = new CachedRowSetImpl();
             cachedRowSet.populate(result);
 
-            connection.close();
-            System.out.println("Closed connection");
             result.close();
             statement.close();
+            connection.close();
+            System.out.println("Closed connection");
             return cachedRowSet;
-        } catch (SQLException e) {
-            System.out.println("JDBC errors");
-            e.printStackTrace();
-        } catch (Exception e) {
-            System.out.println("Errors in Class.forName");
+        } catch (SQLException | ClassNotFoundException | IllegalAccessException | InstantiationException e) {
             e.printStackTrace();
         } finally {
             try {
