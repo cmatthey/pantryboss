@@ -13,8 +13,21 @@ import javax.swing.event.ChangeEvent;
  */
 public class InventoryTableController implements CellEditorListener {
 
+    private GUIHelper gUIHelper;
+    private InventoryTableModel inventoryTableModel;
+
+    public InventoryTableController(GUIHelper gUIHelper) {
+        this.gUIHelper = gUIHelper;
+        inventoryTableModel = new InventoryTableModel(gUIHelper.getAccount_id());
+    }
+
+    public InventoryTableModel getInventoryTableModel() {
+        return inventoryTableModel;
+    }
+
     @Override
     public void editingStopped(ChangeEvent e) {
+
     }
 
     @Override

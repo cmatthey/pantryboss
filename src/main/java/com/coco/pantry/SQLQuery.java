@@ -40,6 +40,7 @@ public class SQLQuery {
             System.out.println(JDBC_DRIVER + " is loaded");
             System.out.println("Connecting to database");
             connection = DriverManager.getConnection(databaseURL, username, password);
+//            connection.setAutoCommit(true); // TODO: clean up the code
             System.out.println("Connected successfully");
             System.out.println("Executing a query");
             statement = connection.createStatement();

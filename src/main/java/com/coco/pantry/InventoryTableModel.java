@@ -88,15 +88,17 @@ public class InventoryTableModel extends AbstractTableModel {
     public void setValueAt(Object value, int row, int col) {
         try {
             cachedrowset.moveToCurrentRow();// TODO: check this line The line is not edited correction
-            System.out.println(String.format("Set value at %d, %d", row + 1, col + 1));
             switch (metadata.getColumnType(col + 1)) {
                 case Types.INTEGER:
                     cachedrowset.updateObject(col + 1, Integer.parseInt((String) value));
+                    System.out.println(String.format("Set value (int) at %d, %d", row + 1, col + 1));
                     break;
                 case Types.VARCHAR:
                     cachedrowset.updateObject(col + 1, (String) value);
+                    System.out.println(String.format("Set value (String) at %d, %d", row + 1, col + 1));
                     break;
                 default:
+                    System.out.println(String.format("Set value (Object) at %d, %d", row + 1, col + 1));
                     cachedrowset.updateObject(col + 1, value);
             }
             // TODO: clean up the code
