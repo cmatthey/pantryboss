@@ -7,20 +7,27 @@ package com.coco.pantry;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import javax.sql.rowset.CachedRowSet;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 
 /**
@@ -29,11 +36,17 @@ import javax.swing.border.BevelBorder;
  */
 public class GUIHelper {
 
-    public static final int ROW_COUNT = 3;
-    public static final int COL_COUNT = 3;
+    public static final int ROW_COUNT = 2;
+    public static final int COL_COUNT = 2;
     private int account_id;
     private InventoryTableController inventoryTableController;
     private JPanel cards;
+    private String username = System.getenv("MYSQL_USERNAME");
+    private String password = System.getenv("MYSQL_PASSWORD");
+    private SQLQuery sQLQuery = new SQLQuery(Constants.DATABASE_NAME, username, password);
+    public static final String QUERY_STATEMENT = "SELECT account_id FROM account WHERE username = '%s' AND password = '%s'";
+    private CachedRowSet cachedrowset = null;
+    private ResultSetMetaData metadata = null;
 
     public GUIHelper(int account_id) {
         this.account_id = account_id;
@@ -76,13 +89,43 @@ public class GUIHelper {
     }
 
     public JPanel crateWelcomePanel() {
-        JPanel card = new JPanel(new BorderLayout());
+        JPanel card = new JPanel(new FlowLayout());
         // TODO: complete welcome panel
-        JTextField usernameTextField = new JTextField("Username");
-//        JLabel jLabel = new JLabel("Welcome", SwingConstants.CENTER);
-        JButton jButton = new JButton("Login");
-        card.add(usernameTextField, BorderLayout.CENTER);
-        card.add(jButton, BorderLayout.SOUTH);
+        JLabel uLabel = new JLabel("Username", SwingConstants.CENTER);
+        JTextField usernameTextField = new JTextField(10);
+        usernameTextField.setToolTipText("Enter Username");
+        JLabel pLabel = new JLabel("Password", SwingConstants.CENTER);
+        JPasswordField passwordField = new JPasswordField(10);
+        passwordField.setToolTipText("Enter Password");
+        JButton loginButton = new JButton("Login");
+        loginButton.addActionListener((ActionEvent e) -> {
+            String username = usernameTextField.getText();
+            char[] password = passwordField.getPassword();
+            String queryStr = String.format(QUERY_STATEMENT, username, String.valueOf(password));
+            try {
+                cachedrowset = sQLQuery.executeQuery(queryStr);
+                if (cachedrowset.size() != 1) {
+                    account_id = -1;
+                    usernameTextField.setText("");
+                    passwordField.setText("");
+                } else {
+                    if (cachedrowset.next()) {
+                        account_id = cachedrowset.getInt("account_id");
+                        System.out.println("Found user " + account_id);
+                        CardLayout cardLayout = (CardLayout) cards.getLayout();
+                        cardLayout.show(cards, "Restock");
+                    }
+                }
+            } catch (SQLException ex) {
+                account_id = -1;
+                ex.printStackTrace();
+            }
+        });
+        card.add(uLabel);
+        card.add(usernameTextField);
+        card.add(pLabel);
+        card.add(passwordField);
+        card.add(loginButton);
         return card;
     }
 
@@ -114,10 +157,14 @@ public class GUIHelper {
 
     public JPanel createCardsPanel() {
         JPanel cards = new JPanel(new CardLayout());
+        cards.add(crateWelcomePanel(), "Login");
         cards.add(createInventoryPanel(), "Restock");
         cards.add(createRecipePanel(), "Cook");
-        cards.add(crateWelcomePanel(), "Logout");
-        cards.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.ORANGE, Color.lightGray));
+        cards.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.ORANGE, Color.lightGray));
+        if (account_id == -1) {
+            CardLayout cl = (CardLayout) cards.getLayout();
+            cl.show(cards, "Login");
+        }
         return cards;
     }
 

@@ -23,6 +23,6 @@ public class Pantry {
 
     public static void main(String[] args) {
         Pantry pantry = new Pantry(1);
-        //TODO: remove hard coded account_id
+        // TODO: cannot make it -1 by default
     }
 }

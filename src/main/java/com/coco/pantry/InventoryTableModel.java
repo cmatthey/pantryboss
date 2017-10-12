@@ -18,14 +18,13 @@ import javax.swing.table.AbstractTableModel;
  */
 public class InventoryTableModel extends AbstractTableModel {
 
-    public static final String DATABASE_NAME = "pantry";
     public static final String EDIABLE_COLUMN_NAME = "quantity";
     public static final String QUERY_STATEMENT = "SELECT inventory_id, item, quantity, recorder_point FROM inventory WHERE account_id = %s";
     public static final String UPDATE_STATEMENT = "UPDATE inventory SET quantity = ? WHERE account_id = ? AND inventory_id = ?";
 
     private String username = System.getenv("MYSQL_USERNAME");
     private String password = System.getenv("MYSQL_PASSWORD");
-    private SQLQuery sQLQuery = new SQLQuery(DATABASE_NAME, username, password);
+    private SQLQuery sQLQuery = new SQLQuery(Constants.DATABASE_NAME, username, password);
 
     private int account_id;
     private String queryStr = null;
