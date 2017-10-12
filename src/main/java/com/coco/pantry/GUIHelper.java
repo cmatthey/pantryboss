@@ -148,7 +148,7 @@ public class GUIHelper {
         }
         JPanel card = new JPanel();
         card.setLayout(new GridLayout(ROW_COUNT, COL_COUNT, 20, 20));
-        // TODO: get recipe from the DB
+        // TODO: get filtered recipe from the DB
         ArrayList<JButton> buttons = new ArrayList<>();
         // Incase the recipes number is less then Recipe buttons size on GUI
         for (int i = 0; i < ROW_COUNT * COL_COUNT && i < imgs.size(); i++) {
@@ -157,10 +157,6 @@ public class GUIHelper {
             System.out.println("imgs.get(i)[1] " + imgs.get(i)[1]);
             System.out.println("resource " + resource);
             JButton button = new JButton(imgs.get(i)[0], new ImageIcon(this.getClass().getResource(imgs.get(i)[1])));
-            // TODO: delete
-            System.out.println("row[0] " + imgs.get(i)[0]);
-            System.out.println("row[1] " + imgs.get(i)[1]);
-            System.out.println("i " + i);
             buttons.add(button);
             card.add(button);
         }
@@ -195,7 +191,7 @@ public class GUIHelper {
 
     public JMenuBar createMenuBar() {
         final String[] menuItemManage = {"Cook", "Restock"};
-        final String[] menuItemLogin = {"Logout"};
+        final String[] menuItemLogin = {"Login"};
         JMenuBar jMenuBar = new JMenuBar();
         JMenu jMmenu = new JMenu("Manage");
         for (String text : menuItemManage) {
@@ -210,7 +206,7 @@ public class GUIHelper {
             jMmenu.add(jMenuItem);
         }
         jMenuBar.add(jMmenu);
-        jMmenu = new JMenu("Logout");
+        jMmenu = new JMenu("Login");
         for (String text : menuItemLogin) {
             JMenuItem jMenuItem = new JMenuItem(text);
             jMenuItem.addActionListener(new ActionListener() {
