@@ -19,7 +19,7 @@ import javax.swing.table.AbstractTableModel;
 public class InventoryTableModel extends AbstractTableModel {
 
     public static final String EDIABLE_COLUMN_NAME = "quantity";
-    public static final String QUERY_STATEMENT = "SELECT inventory_id, item, quantity, recorder_point FROM inventory WHERE account_id = %s";
+    public static final String QUERY_STATEMENT = "SELECT inventory_id, item, quantity, recorder_point FROM inventory INNER JOIN grocery WHERE account_id = %s AND inventory.grocery_id = grocery.grocery_id";
     public static final String UPDATE_STATEMENT = "UPDATE inventory SET quantity = ? WHERE account_id = ? AND inventory_id = ?";
 
     private String username = System.getenv("MYSQL_USERNAME");

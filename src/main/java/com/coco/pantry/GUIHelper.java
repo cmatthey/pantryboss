@@ -11,11 +11,13 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URL;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import javax.sql.rowset.CachedRowSet;
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -44,7 +46,8 @@ public class GUIHelper {
     private String username = System.getenv("MYSQL_USERNAME");
     private String password = System.getenv("MYSQL_PASSWORD");
     private SQLQuery sQLQuery = new SQLQuery(Constants.DATABASE_NAME, username, password);
-    public static final String QUERY_STATEMENT = "SELECT account_id FROM account WHERE username = '%s' AND password = '%s'";
+    public static final String QUERY_STATEMENT_ACCOUNT = "SELECT account_id FROM account WHERE username = '%s' AND password = '%s'";
+    public static final String QUERY_STATEMENT_RECIPE = "SELECT dish, img FROM recipe";
     private CachedRowSet cachedrowset = null;
     private ResultSetMetaData metadata = null;
 
@@ -90,7 +93,7 @@ public class GUIHelper {
 
     public JPanel crateWelcomePanel() {
         JPanel card = new JPanel(new FlowLayout());
-        // TODO: complete welcome panel
+        // TODO: make a better layout
         JLabel uLabel = new JLabel("Username", SwingConstants.CENTER);
         JTextField usernameTextField = new JTextField(10);
         usernameTextField.setToolTipText("Enter Username");
@@ -101,7 +104,7 @@ public class GUIHelper {
         loginButton.addActionListener((ActionEvent e) -> {
             String username = usernameTextField.getText();
             char[] password = passwordField.getPassword();
-            String queryStr = String.format(QUERY_STATEMENT, username, String.valueOf(password));
+            String queryStr = String.format(QUERY_STATEMENT_ACCOUNT, username, String.valueOf(password));
             try {
                 cachedrowset = sQLQuery.executeQuery(queryStr);
                 if (cachedrowset.size() != 1) {
@@ -130,12 +133,34 @@ public class GUIHelper {
     }
 
     public JPanel createRecipePanel() {
+        ArrayList<String[]> imgs = new ArrayList<>();
+        String[] row = new String[2];
+        try {
+            cachedrowset = sQLQuery.executeQuery(QUERY_STATEMENT_RECIPE);
+            while (cachedrowset.next()) {
+                row = new String[2];
+                row[0] = (cachedrowset.getString("dish"));
+                row[1] = (cachedrowset.getString("img"));
+                imgs.add(row);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         JPanel card = new JPanel();
         card.setLayout(new GridLayout(ROW_COUNT, COL_COUNT, 20, 20));
         // TODO: get recipe from the DB
         ArrayList<JButton> buttons = new ArrayList<>();
-        for (int i = 0; i < ROW_COUNT * COL_COUNT; i++) {
-            JButton button = new JButton(String.valueOf(i));
+        // Incase the recipes number is less then Recipe buttons size on GUI
+        for (int i = 0; i < ROW_COUNT * COL_COUNT && i < imgs.size(); i++) {
+            URL resource = this.getClass().getResource(imgs.get(i)[1]);
+            resource = this.getClass().getResource("/images/apple.jpeg");
+            System.out.println("imgs.get(i)[1] " + imgs.get(i)[1]);
+            System.out.println("resource " + resource);
+            JButton button = new JButton(imgs.get(i)[0], new ImageIcon(this.getClass().getResource(imgs.get(i)[1])));
+            // TODO: delete
+            System.out.println("row[0] " + imgs.get(i)[0]);
+            System.out.println("row[1] " + imgs.get(i)[1]);
+            System.out.println("i " + i);
             buttons.add(button);
             card.add(button);
         }
