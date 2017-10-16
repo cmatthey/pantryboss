@@ -36,10 +36,6 @@ public class SQLQuery {
         this.password = password;
     }
 
-    public Connection getConnection() {
-        return connection;
-    }
-
     public CachedRowSet execute(String queryStr, ArrayList<PreparedParameter> params) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -67,15 +63,17 @@ public class SQLQuery {
                 }
             }
             // http://javaconceptoftheday.com/difference-between-executequery-executeupdate-execute-in-jdbc/
+            // TODO: delete
             hasResultSet = preparedStatement.execute();
+            connection.commit();
+            ResultSet result = preparedStatement.getResultSet();
+            cachedRowSet = new CachedRowSetImpl();
             if (hasResultSet) {
-                ResultSet result = preparedStatement.getResultSet();
-                cachedRowSet = new CachedRowSetImpl();
                 cachedRowSet.populate(result);
-                preparedStatement.close();
-                connection.close();
-                System.out.println("Closed connection");
             }
+            preparedStatement.close();
+            connection.close();
+            System.out.println("Closed connection");
         } catch (SQLException e) {
             System.out.println("JDBC errors");
             e.printStackTrace();
@@ -83,23 +81,21 @@ public class SQLQuery {
             System.out.println("Errors in Class.forName");
             e.printStackTrace();
         } finally {
-            if (hasResultSet) {
-                try {
-                    if (preparedStatement != null) {
-                        preparedStatement.close();
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
+            try {
+                if (preparedStatement != null) {
+                    preparedStatement.close();
                 }
-                try {
-                    if (connection != null) {
-                        connection.close();
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-                System.out.println("Closed connection");
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            System.out.println("Closed connection");
         }
         return cachedRowSet;
     }

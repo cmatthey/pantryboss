@@ -135,6 +135,7 @@ public class PantryGui {
         JPanel card = new JPanel(new BorderLayout());
         jTable = new JTable(inventoryTableController.getInventoryTableModel());
         jTable.getModel().addTableModelListener(inventoryTableController);
+        jTable.getSelectionModel().addListSelectionListener(inventoryTableController);
         JScrollPane jScrollPane = new JScrollPane(jTable);
         card.add(jScrollPane, BorderLayout.CENTER);
         return card;
