@@ -36,15 +36,21 @@ public class SQLQuery {
         this.password = password;
     }
 
+    public Connection getConnection() {
+        return connection;
+    }
+
     public CachedRowSet execute(String queryStr, ArrayList<PreparedParameter> params) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         CachedRowSet cachedRowSet = null;
+        boolean hasResultSet = false;
 
         try {
             Class.forName(JDBC_DRIVER);
             System.out.println("Connecting to database");
             connection = DriverManager.getConnection(databaseURL, username, password);
+            connection.setAutoCommit(false);
 
             preparedStatement = connection.prepareStatement(queryStr);
             if (params != null) {
@@ -61,15 +67,15 @@ public class SQLQuery {
                 }
             }
             // http://javaconceptoftheday.com/difference-between-executequery-executeupdate-execute-in-jdbc/
-            boolean hasResultSet = preparedStatement.execute();
+            hasResultSet = preparedStatement.execute();
             if (hasResultSet) {
                 ResultSet result = preparedStatement.getResultSet();
                 cachedRowSet = new CachedRowSetImpl();
                 cachedRowSet.populate(result);
+                preparedStatement.close();
+                connection.close();
+                System.out.println("Closed connection");
             }
-            preparedStatement.close();
-            connection.close();
-            System.out.println("Closed connection");
         } catch (SQLException e) {
             System.out.println("JDBC errors");
             e.printStackTrace();
@@ -77,21 +83,23 @@ public class SQLQuery {
             System.out.println("Errors in Class.forName");
             e.printStackTrace();
         } finally {
-            try {
-                if (preparedStatement != null) {
-                    preparedStatement.close();
+            if (hasResultSet) {
+                try {
+                    if (preparedStatement != null) {
+                        preparedStatement.close();
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-            try {
-                if (connection != null) {
-                    connection.close();
+                try {
+                    if (connection != null) {
+                        connection.close();
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
-            } catch (SQLException e) {
-                e.printStackTrace();
+                System.out.println("Closed connection");
             }
-            System.out.println("Closed connection");
         }
         return cachedRowSet;
     }

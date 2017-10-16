@@ -121,6 +121,8 @@ public class PantryGui {
         recipeButtons = new ArrayList<>();
         for (int i = 0; i < ROW_COUNT * COL_COUNT; i++) {
             JButton button = new JButton();
+            // TODO: troubleshot
+            button.setSize(525, 350);
             recipeButtons.add(button);
             grid.add(button);
         }
@@ -132,6 +134,7 @@ public class PantryGui {
     public JPanel createInventoryPanel() {
         JPanel card = new JPanel(new BorderLayout());
         jTable = new JTable(inventoryTableController.getInventoryTableModel());
+        jTable.getModel().addTableModelListener(inventoryTableController);
         JScrollPane jScrollPane = new JScrollPane(jTable);
         card.add(jScrollPane, BorderLayout.CENTER);
         return card;

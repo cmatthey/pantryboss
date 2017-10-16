@@ -93,7 +93,7 @@ public class InventoryTableModel extends AbstractTableModel {
     @Override
     public void setValueAt(Object value, int row, int col) {
         try {
-            cachedrowset.moveToCurrentRow();// TODO: check this line The line is not edited correction
+            cachedrowset.absolute(row + 1);
             switch (metadata.getColumnType(col + 1)) {
                 case Types.INTEGER:
                     cachedrowset.updateObject(col + 1, Integer.parseInt((String) value));
@@ -107,6 +107,7 @@ public class InventoryTableModel extends AbstractTableModel {
                     System.out.println(String.format("Set value (Object) at %d, %d", row + 1, col + 1));
                     cachedrowset.updateObject(col + 1, value);
             }
+            cachedrowset.acceptChanges(sQLQuery.getConnection());
         } catch (SQLException e) {
             e.printStackTrace();
         }

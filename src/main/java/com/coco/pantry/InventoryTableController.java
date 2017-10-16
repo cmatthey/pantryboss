@@ -6,12 +6,14 @@ package com.coco.pantry;
 
 import javax.sql.RowSetEvent;
 import javax.sql.RowSetListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 
 /**
  *
  * @author Coco
  */
-public class InventoryTableController implements RowSetListener {
+public class InventoryTableController implements RowSetListener, TableModelListener {
 
     private PantryGui pantryGui;
     private InventoryTableModel inventoryTableModel;
@@ -42,5 +44,10 @@ public class InventoryTableController implements RowSetListener {
     @Override
     public void cursorMoved(RowSetEvent event) {
         System.out.println("cursorMoved");
+    }
+
+    @Override
+    public void tableChanged(TableModelEvent e) {
+        System.out.println("tableChanged");
     }
 }
