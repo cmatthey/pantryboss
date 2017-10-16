@@ -4,10 +4,10 @@
  */
 package com.coco.pantry;
 
-import java.sql.PreparedStatement;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.ArrayList;
 import javax.sql.rowset.CachedRowSet;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
@@ -19,17 +19,13 @@ import javax.swing.table.AbstractTableModel;
 public class InventoryTableModel extends AbstractTableModel {
 
     public static final String EDIABLE_COLUMN_NAME = "quantity";
-    public static final String QUERY_STATEMENT = "SELECT inventory_id, item, quantity, recorder_point FROM inventory INNER JOIN grocery WHERE account_id = %s AND inventory.grocery_id = grocery.grocery_id";
-    public static final String UPDATE_STATEMENT = "UPDATE inventory SET quantity = ? WHERE account_id = ? AND inventory_id = ?";
-
-    private String username = System.getenv("MYSQL_USERNAME");
-    private String password = System.getenv("MYSQL_PASSWORD");
-    private SQLQuery sQLQuery = new SQLQuery(Constants.DATABASE_NAME, username, password);
+    @Deprecated
+//    public static final String QUERY_STATEMENT = "SELECT inventory_id, item, quantity, recorder_point FROM inventory INNER JOIN grocery WHERE account_id = %s AND inventory.grocery_id = grocery.grocery_id";
+    public static final String QUERY_STATEMENT_INVENTORY = "SELECT inventory_id, item, quantity, recorder_point FROM inventory, grocery WHERE account_id = ? AND inventory.grocery_id = grocery.grocery_id";
+    public static final String UPDATE_STATEMENT_INVENTORY = "UPDATE inventory SET quantity = ? WHERE account_id = ? AND inventory_id = ?";
 
     private int account_id;
-    private String queryStr = null;
-    private String updateStr = null;
-    private PreparedStatement preparedStatement = null;
+    private SQLQuery sQLQuery;
     private CachedRowSet cachedrowset = null;
     private ResultSetMetaData metadata = null;
     private int numcols = 0;
@@ -37,19 +33,30 @@ public class InventoryTableModel extends AbstractTableModel {
 
     public InventoryTableModel(int account_id) {
         this.account_id = account_id;
+        String dbusername = System.getenv("MYSQL_USERNAME");
+        String dbpassword = System.getenv("MYSQL_PASSWORD");
+        sQLQuery = new SQLQuery(Constants.DATABASE_NAME, dbusername, dbpassword);
         run();
     }
 
+    public void setAccount_id(int account_id) {
+        if (this.account_id != account_id) {
+            this.account_id = account_id;
+            run();
+        }
+    }
+
     private void run() {
-        queryStr = String.format(QUERY_STATEMENT, account_id);
-        cachedrowset = sQLQuery.executeQuery(queryStr);
+        ArrayList<PreparedParameter> params = new ArrayList<PreparedParameter>();
+        params.add(new PreparedParameter(account_id, Types.INTEGER));
+        cachedrowset = sQLQuery.execute(QUERY_STATEMENT_INVENTORY, params);
+        numrows = cachedrowset.size();
         try {
             metadata = cachedrowset.getMetaData();
             numcols = metadata.getColumnCount();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        numrows = cachedrowset.size();
     }
 
     @Override
@@ -100,9 +107,6 @@ public class InventoryTableModel extends AbstractTableModel {
                     System.out.println(String.format("Set value (Object) at %d, %d", row + 1, col + 1));
                     cachedrowset.updateObject(col + 1, value);
             }
-            // TODO: clean up the code
-//            int inventory_id = cachedrowset.getInt("inventory_id");
-//            sQLQuery.executeUpdateInventory(null, (int) value, account_id, inventory_id);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -133,6 +137,6 @@ public class InventoryTableModel extends AbstractTableModel {
 
     @Override
     public void addTableModelListener(TableModelListener l) {
-        //TODO:
+        //TODO: cleanup
     }
 }

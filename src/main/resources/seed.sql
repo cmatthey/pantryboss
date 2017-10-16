@@ -11,9 +11,9 @@
  * Account
  */
 INSERT INTO account(username, password)
-    VALUES('coco', 'replacewithyourpassword');
+    VALUES('coco', 'replaceitwithyourpassword');
 INSERT INTO account(username, password)
-    VALUES('radhika', 'replacewithyourpassword');
+    VALUES('radhika', 'replaceitwithyourpassword');
 
 /**
  * Recipe
@@ -59,6 +59,8 @@ INSERT INTO grocery(item)
 INSERT INTO grocery(item)
     VALUES('Tomatoe');
 INSERT INTO grocery(item)
+    VALUES('Egg');
+INSERT INTO grocery(item)
     VALUES('Ground Beef');
 INSERT INTO grocery(item)
     VALUES('Canola Oil');
@@ -92,6 +94,26 @@ INSERT INTO inventory(account_id, grocery_id, quantity, recorder_point)
     VALUES((SELECT account_id FROM account WHERE username = 'coco'), (SELECT grocery_id FROM grocery WHERE item = 'Carrot'), 1, 3);
 INSERT INTO inventory(account_id, grocery_id, quantity, recorder_point)
     VALUES((SELECT account_id FROM account WHERE username = 'coco'), (SELECT grocery_id FROM grocery WHERE item = 'Corn'), 1, 3);
+INSERT INTO inventory(account_id, grocery_id, quantity, recorder_point)
+    VALUES((SELECT account_id FROM account WHERE username = 'coco'), (SELECT grocery_id FROM grocery WHERE item = 'Onion'), 1, 3);
+INSERT INTO inventory(account_id, grocery_id, quantity, recorder_point)
+    VALUES((SELECT account_id FROM account WHERE username = 'coco'), (SELECT grocery_id FROM grocery WHERE item = 'Tomatoe'), 1, 3);
+INSERT INTO inventory(account_id, grocery_id, quantity, recorder_point)
+    VALUES((SELECT account_id FROM account WHERE username = 'coco'), (SELECT grocery_id FROM grocery WHERE item = 'Egg'), 1, 3);
+INSERT INTO inventory(account_id, grocery_id, quantity, recorder_point)
+    VALUES((SELECT account_id FROM account WHERE username = 'coco'), (SELECT grocery_id FROM grocery WHERE item = 'Baking Powder'), 1, 3);
+INSERT INTO inventory(account_id, grocery_id, quantity, recorder_point)
+    VALUES((SELECT account_id FROM account WHERE username = 'coco'), (SELECT grocery_id FROM grocery WHERE item = 'Flour'), 1, 3);
+INSERT INTO inventory(account_id, grocery_id, quantity, recorder_point)
+    VALUES((SELECT account_id FROM account WHERE username = 'radhika'), (SELECT grocery_id FROM grocery WHERE item = 'Onion'), 2, 3);
+INSERT INTO inventory(account_id, grocery_id, quantity, recorder_point)
+    VALUES((SELECT account_id FROM account WHERE username = 'radhika'), (SELECT grocery_id FROM grocery WHERE item = 'Tomatoe'), 2, 3);
+INSERT INTO inventory(account_id, grocery_id, quantity, recorder_point)
+    VALUES((SELECT account_id FROM account WHERE username = 'radhika'), (SELECT grocery_id FROM grocery WHERE item = 'Egg'), 2, 3);
+INSERT INTO inventory(account_id, grocery_id, quantity, recorder_point)
+    VALUES((SELECT account_id FROM account WHERE username = 'radhika'), (SELECT grocery_id FROM grocery WHERE item = 'Baking Powder'), 2, 3);
+INSERT INTO inventory(account_id, grocery_id, quantity, recorder_point)
+    VALUES((SELECT account_id FROM account WHERE username = 'radhika'), (SELECT grocery_id FROM grocery WHERE item = 'Ground Beef'), 2, 3);
 
 
 /**
@@ -100,6 +122,22 @@ INSERT INTO inventory(account_id, grocery_id, quantity, recorder_point)
 INSERT INTO ingredient(recipe_id, grocery_id, quantity)
     VALUES((SELECT recipe_id FROM recipe WHERE dish = 'Chopped Apple'), (SELECT grocery_id FROM grocery WHERE item = 'Apple'), 1);
 INSERT INTO ingredient(recipe_id, grocery_id, quantity)
-    VALUES((SELECT recipe_id FROM recipe WHERE dish = 'Blueberry Waffle'), (SELECT grocery_id FROM grocery WHERE item = 'Blueberry Waffle'), 1);
+    VALUES((SELECT recipe_id FROM recipe WHERE dish = 'Blueberry Waffle'), (SELECT grocery_id FROM grocery WHERE item = 'Blueberry'), 1);
 INSERT INTO ingredient(recipe_id, grocery_id, quantity)
-    VALUES((SELECT recipe_id FROM recipe WHERE dish = 'Steamed carrot'), (SELECT grocery_id FROM grocery WHERE item = 'Steamed carrot'), 1);
+    VALUES((SELECT recipe_id FROM recipe WHERE dish = 'Blueberry Waffle'), (SELECT grocery_id FROM grocery WHERE item = 'Flour'), 1);
+INSERT INTO ingredient(recipe_id, grocery_id, quantity)
+    VALUES((SELECT recipe_id FROM recipe WHERE dish = 'Blueberry Waffle'), (SELECT grocery_id FROM grocery WHERE item = 'Sugar'), 1);
+INSERT INTO ingredient(recipe_id, grocery_id, quantity)
+    VALUES((SELECT recipe_id FROM recipe WHERE dish = 'Blueberry Waffle'), (SELECT grocery_id FROM grocery WHERE item = 'Egg'), 1);
+INSERT INTO ingredient(recipe_id, grocery_id, quantity)
+    VALUES((SELECT recipe_id FROM recipe WHERE dish = 'Blueberry Waffle'), (SELECT grocery_id FROM grocery WHERE item = 'Baking Powder'), 1);
+INSERT INTO ingredient(recipe_id, grocery_id, quantity)
+    VALUES((SELECT recipe_id FROM recipe WHERE dish = 'Carrot Juice'), (SELECT grocery_id FROM grocery WHERE item = 'Carrot'), 1);
+INSERT INTO ingredient(recipe_id, grocery_id, quantity)
+    VALUES((SELECT recipe_id FROM recipe WHERE dish = 'Hot Chocolate with Marshmallow'), (SELECT grocery_id FROM grocery WHERE item = 'Cocoa Powder'), 1);
+INSERT INTO ingredient(recipe_id, grocery_id, quantity)
+    VALUES((SELECT recipe_id FROM recipe WHERE dish = 'Hot Chocolate with Marshmallow'), (SELECT grocery_id FROM grocery WHERE item = 'Sugar'), 1);
+INSERT INTO ingredient(recipe_id, grocery_id, quantity)
+    VALUES((SELECT recipe_id FROM recipe WHERE dish = 'Hot Chocolate with Marshmallow'), (SELECT grocery_id FROM grocery WHERE item = 'Marshmallow'), 1);
+INSERT INTO ingredient(recipe_id, grocery_id, quantity)
+    VALUES((SELECT recipe_id FROM recipe WHERE dish = 'Hot Chocolate with Marshmallow'), (SELECT grocery_id FROM grocery WHERE item = 'Milk'), 1);

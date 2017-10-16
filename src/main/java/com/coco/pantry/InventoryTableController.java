@@ -4,34 +4,43 @@
  */
 package com.coco.pantry;
 
-import javax.swing.event.CellEditorListener;
-import javax.swing.event.ChangeEvent;
+import javax.sql.RowSetEvent;
+import javax.sql.RowSetListener;
 
 /**
  *
  * @author Coco
  */
-public class InventoryTableController implements CellEditorListener {
+public class InventoryTableController implements RowSetListener {
 
-    private GUIHelper gUIHelper;
+    private PantryGui pantryGui;
     private InventoryTableModel inventoryTableModel;
 
-    public InventoryTableController(GUIHelper gUIHelper) {
-        this.gUIHelper = gUIHelper;
-        inventoryTableModel = new InventoryTableModel(gUIHelper.getAccount_id());
+    public InventoryTableController(PantryGui pantryGui) {
+        this.pantryGui = pantryGui;
+        inventoryTableModel = new InventoryTableModel(pantryGui.getAccount_id());
     }
 
     public InventoryTableModel getInventoryTableModel() {
         return inventoryTableModel;
     }
 
-    @Override
-    public void editingStopped(ChangeEvent e) {
-
+    public void account_idChanged() {
+        inventoryTableModel.setAccount_id(pantryGui.getAccount_id());
     }
 
     @Override
-    public void editingCanceled(ChangeEvent e) {
+    public void rowSetChanged(RowSetEvent event) {
+        System.out.println("rowSetChanged");
     }
 
+    @Override
+    public void rowChanged(RowSetEvent event) {
+        System.out.println("rowChanged");
+    }
+
+    @Override
+    public void cursorMoved(RowSetEvent event) {
+        System.out.println("cursorMoved");
+    }
 }
