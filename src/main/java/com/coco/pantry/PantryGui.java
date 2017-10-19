@@ -30,6 +30,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
@@ -246,6 +247,14 @@ public class PantryGui {
         }
     }
 
+    public int createConfirmOptionPane(String dish) {
+        int choice = JOptionPane.showConfirmDialog(window,
+                String.format("You chose %s. Click Yes to proceed.", dish),
+                "Confirm your choice",
+                JOptionPane.YES_NO_OPTION);
+        return choice;
+    }
+
     private int authenticate(String username, String password) {
         ArrayList<PreparedParameter> params = new ArrayList<>();
         params.add(new PreparedParameter(username, Types.VARCHAR));
@@ -284,8 +293,11 @@ public class PantryGui {
                 button.setIcon(new ImageIcon(resource));
                 button.setEnabled(true);
                 button.addActionListener((ActionEvent e) -> {
-                    // TODO: to further deduct the inventory
-                    System.out.println(entry.getValue()[0] + " is selected");
+                    int choice = createConfirmOptionPane(entry.getValue()[0]);
+                    if (choice == JOptionPane.YES_OPTION) {
+                        System.out.println(entry.getValue()[0] + " is selected");
+                        // TODO: to further deduct the inventory
+                    }
                 });
             }
         }
