@@ -112,7 +112,7 @@ public class PantryGui {
 
     public JPanel createWelcomePanel() {
         JPanel card = new JPanel(new BorderLayout());
-        JLabel title = new JLabel("What is cooking in your mind?", SwingConstants.CENTER);
+        JLabel title = new JLabel("What's for dinner?", SwingConstants.CENTER);
         title.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 60));
         title.setForeground(Color.ORANGE);
         card.add(title, BorderLayout.NORTH);
