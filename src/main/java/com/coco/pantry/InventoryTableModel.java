@@ -4,6 +4,7 @@
  */
 package com.coco.pantry;
 
+import com.coco.pantry.SQLQuery.PreparedParameter;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -32,9 +33,7 @@ public class InventoryTableModel extends AbstractTableModel {
 
     public InventoryTableModel(int account_id) {
         this.account_id = account_id;
-        String dbusername = System.getenv("MYSQL_USERNAME");
-        String dbpassword = System.getenv("MYSQL_PASSWORD");
-        sQLQuery = new SQLQuery(Constants.DATABASE_NAME, dbusername, dbpassword);
+        sQLQuery = new SQLQuery();
         runSelect();
     }
 
@@ -46,8 +45,8 @@ public class InventoryTableModel extends AbstractTableModel {
     }
 
     private void runSelect() {
-        ArrayList<PreparedParameter> params = new ArrayList<PreparedParameter>();
-        params.add(new PreparedParameter(account_id, Types.INTEGER));
+        ArrayList<PreparedParameter> params = new ArrayList<>();
+        params.add(sQLQuery.new PreparedParameter(account_id, Types.INTEGER));
         cachedrowsetSelect = sQLQuery.execute(QUERY_STATEMENT_INVENTORY, params);
         numrows = cachedrowsetSelect.size();
         try {
@@ -59,10 +58,10 @@ public class InventoryTableModel extends AbstractTableModel {
     }
 
     private void runUpdate(int quantity, int inventory_id) {
-        ArrayList<PreparedParameter> params = new ArrayList<PreparedParameter>();
-        params.add(new PreparedParameter(quantity, Types.INTEGER));
-        params.add(new PreparedParameter(account_id, Types.INTEGER));
-        params.add(new PreparedParameter(inventory_id, Types.INTEGER));
+        ArrayList<PreparedParameter> params = new ArrayList<>();
+        params.add(sQLQuery.new PreparedParameter(quantity, Types.INTEGER));
+        params.add(sQLQuery.new PreparedParameter(account_id, Types.INTEGER));
+        params.add(sQLQuery.new PreparedParameter(inventory_id, Types.INTEGER));
         cachedrowsetUpdate = sQLQuery.execute(UPDATE_STATEMENT_INVENTORY, params);
     }
 

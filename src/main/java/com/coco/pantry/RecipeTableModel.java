@@ -4,6 +4,7 @@
  */
 package com.coco.pantry;
 
+import com.coco.pantry.SQLQuery.PreparedParameter;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -19,22 +20,22 @@ import javax.sql.rowset.CachedRowSet;
 public class RecipeTableModel {
 
     public static final String QUERY_STATEMENT_RECIPE = "SELECT recipe_id, dish, img FROM recipe";
-    public static final String QUERY_STATEMENT_RECIPE_BY_ACCOUNT = "SELECT DISTINCT recipe.recipe_id, recipe.dish, recipe.img FROM recipe, ingredient "
-            + "WHERE recipe.recipe_id = ingredient.recipe_id "
-            + "AND ingredient.grocery_id IN (select grocery.grocery_id from inventory, grocery "
-            + "WHERE inventory.grocery_id = grocery.grocery_id AND inventory.account_id = ?) ORDER BY recipe.recipe_id";
-
+    public static final String QUERY_STATEMENT_RECIPE_BY_ACCOUNT
+            = "SELECT r.recipe_id, r.dish, r.img, iv.inventory_id, g.grocery_id, "
+            + "iv.quantity AS total, ig.quantity AS needed "
+            + "FROM account a, inventory iv, grocery g, ingredient ig, recipe r "
+            + "WHERE a.account_id = iv.account_id AND iv.grocery_id = g.grocery_id "
+            + "AND ig.grocery_id = g.grocery_id AND ig.recipe_id = r.recipe_id "
+            + "AND iv.quantity >= ig.quantity AND a.account_id = ?";
     private int account_id = -1;
-    private Map<Integer, String[]> dishes = new TreeMap<>();
+    private Map<Integer, Object[]> dishes = new TreeMap<>();
     private SQLQuery sQLQuery;
     private CachedRowSet cachedrowset = null;
     private ResultSetMetaData metadata = null;
 
     public RecipeTableModel(int account_id) {
         this.account_id = account_id;
-        String dbusername = System.getenv("MYSQL_USERNAME");
-        String dbpassword = System.getenv("MYSQL_PASSWORD");
-        sQLQuery = new SQLQuery(Constants.DATABASE_NAME, dbusername, dbpassword);
+        sQLQuery = new SQLQuery();
         run();
     }
 
@@ -45,7 +46,7 @@ public class RecipeTableModel {
         }
     }
 
-    public Map<Integer, String[]> getDishes() {
+    public Map<Integer, Object[]> getDishes() {
         return dishes;
     }
 
@@ -55,13 +56,20 @@ public class RecipeTableModel {
                 cachedrowset = sQLQuery.execute(QUERY_STATEMENT_RECIPE, null);
             } else {
                 ArrayList<PreparedParameter> params = new ArrayList<>();
-                params.add(new PreparedParameter(account_id, Types.INTEGER));
+                params.add(sQLQuery.new PreparedParameter(account_id, Types.INTEGER));
                 cachedrowset = sQLQuery.execute(QUERY_STATEMENT_RECIPE_BY_ACCOUNT, params);
+                metadata = cachedrowset.getMetaData();
                 while (cachedrowset.next()) {
                     int recipe_id = cachedrowset.getInt("recipe_id");
-                    String[] row = new String[2];
-                    row[0] = (cachedrowset.getString("dish"));
-                    row[1] = (cachedrowset.getString("img"));
+                    Object[] row = new Object[7];
+                    row[0] = cachedrowset.getString("dish");
+                    row[1] = cachedrowset.getString("img");
+                    row[2] = cachedrowset.getInt("inventory_id");
+                    row[3] = cachedrowset.getInt("grocery_id");
+//                    row[4] = cachedrowset.getInt("total");
+                    row[4] = cachedrowset.getInt(6);
+//                    row[5] = cachedrowset.getInt("needed");
+                    row[5] = cachedrowset.getInt(7);
                     dishes.put(recipe_id, row);
                 }
             }

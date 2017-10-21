@@ -10,7 +10,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import javax.sql.rowset.CachedRowSet;
@@ -23,19 +22,6 @@ public class SQLQuery {
 
     static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
 
-    private String databaseURL;
-    private String username;
-    private String password;
-    private Connection connection = null;
-    private Statement statement = null;
-    private CachedRowSet cachedRowSet = null;
-
-    public SQLQuery(String databaseName, String username, String password) {
-        databaseURL = String.format("jdbc:mysql://localhost/%s?useSSL=false&useJDBCCompliantTimezoneShift=true&&serverTimezone=UTC", databaseName);
-        this.username = username;
-        this.password = password;
-    }
-
     public CachedRowSet execute(String queryStr, ArrayList<PreparedParameter> params) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -45,7 +31,8 @@ public class SQLQuery {
         try {
             Class.forName(JDBC_DRIVER);
             System.out.println("Connecting to database");
-            connection = DriverManager.getConnection(databaseURL, username, password);
+            String databaseURL = String.format("jdbc:mysql://localhost/%s?useSSL=false&useJDBCCompliantTimezoneShift=true&&serverTimezone=UTC", DBConstants.DATABASE_NAME);
+            connection = DriverManager.getConnection(databaseURL, DBConstants.MYSQL_USERNAME, DBConstants.MYSQL_PASSWORD);
             connection.setAutoCommit(false);
 
             preparedStatement = connection.prepareStatement(queryStr);
@@ -62,8 +49,6 @@ public class SQLQuery {
                     }
                 }
             }
-            // http://javaconceptoftheday.com/difference-between-executequery-executeupdate-execute-in-jdbc/
-            // TODO: delete
             hasResultSet = preparedStatement.execute();
             connection.commit();
             ResultSet result = preparedStatement.getResultSet();
@@ -98,5 +83,16 @@ public class SQLQuery {
             System.out.println("Closed connection");
         }
         return cachedRowSet;
+    }
+
+    public class PreparedParameter {
+
+        public Object value;
+        public int type;
+
+        public PreparedParameter(Object value, int type) {
+            this.value = value;
+            this.type = type;
+        }
     }
 }

@@ -4,6 +4,7 @@
  */
 package com.coco.pantry;
 
+import com.coco.pantry.SQLQuery.PreparedParameter;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
@@ -45,19 +46,16 @@ import javax.swing.border.BevelBorder;
  */
 public class PantryGui {
 
-    private JFrame window;
-    private int account_id;
-    private String username;
-
     public static final int ROW_COUNT = 2;
     public static final int COL_COUNT = 2;
-    public static final String QUERY_STATEMENT_ACCOUNT = "SELECT account_id FROM account WHERE username = ? AND password = ?";
-    public static final String QUERY_STATEMENT_RECIPE_ACCOUNT = "SELECT dish, img FROM recipe WHERE account_id = ?";
-    public static final String QUERY_STATEMENT_RECIPE = "SELECT dish, img FROM recipe";
-    private String dbusername = System.getenv("MYSQL_USERNAME");
-    private String dbpassword = System.getenv("MYSQL_PASSWORD");
-    private SQLQuery sQLQuery = new SQLQuery(Constants.DATABASE_NAME, dbusername, dbpassword);
+    public static final String QUERY_STATEMENT_ACCOUNT
+            = "SELECT account_id FROM account WHERE username = ? AND password = ?";
 
+    private int account_id;
+    private String username;
+    private SQLQuery sQLQuery = new SQLQuery();
+
+    private JFrame window;
     private JPanel cards;
     private JTable jTable;
     private ArrayList<JButton> recipeButtons;
@@ -257,8 +255,8 @@ public class PantryGui {
 
     private int authenticate(String username, String password) {
         ArrayList<PreparedParameter> params = new ArrayList<>();
-        params.add(new PreparedParameter(username, Types.VARCHAR));
-        params.add(new PreparedParameter(password, Types.VARCHAR));
+        params.add(sQLQuery.new PreparedParameter(username, Types.VARCHAR));
+        params.add(sQLQuery.new PreparedParameter(password, Types.VARCHAR));
 
         try {
             cachedrowset = sQLQuery.execute(QUERY_STATEMENT_ACCOUNT, params);
@@ -283,20 +281,27 @@ public class PantryGui {
 
     private void setRecipeImages() {
         RecipeTableModel recipeTableModel = recipeTableController.getRecipeTableModel();
-        TreeMap<Integer, String[]> dishes = (TreeMap) recipeTableModel.getDishes();
+        TreeMap<Integer, Object[]> dishes = (TreeMap) recipeTableModel.getDishes();
         Iterator iterator = dishes.entrySet().iterator();
+        int[] grocery_ids = new int[dishes.size()];
+        int[] quantity = new int[dishes.size()];
         for (int i = 0; i < ROW_COUNT * COL_COUNT && i < dishes.size(); i++) {
             if (iterator.hasNext()) {
-                Map.Entry<Integer, String[]> entry = (Map.Entry) iterator.next();
-                URL resource = this.getClass().getResource(entry.getValue()[1]);
+                Map.Entry<Integer, Object[]> entry = (Map.Entry) iterator.next();
+                URL resource = this.getClass().getResource((String) entry.getValue()[1]);
                 JButton button = recipeButtons.get(i);
                 button.setIcon(new ImageIcon(resource));
                 button.setEnabled(true);
                 button.addActionListener((ActionEvent e) -> {
-                    int choice = createConfirmOptionPane(entry.getValue()[0]);
+                    int choice = createConfirmOptionPane((String) entry.getValue()[0]);
                     if (choice == JOptionPane.YES_OPTION) {
-                        System.out.println(entry.getValue()[0] + " is selected");
+                        System.out.println((String) entry.getValue()[0] + " is selected");
                         // TODO: to further deduct the inventory
+                        // https://stackoverflow.com/questions/25674737/mysql-update-multiple-rows-with-different-values-in-one-query
+//                        String cols = String.join(",", (String) (dishes.values())[3]);
+                        String update_inventory_statement
+                                = "UPDATE inventory SET quantity = "
+                                + "ELT(grocery_id, 15, 15) WHERE grocery_id in (1, 2) AND account_id = ?";
                     }
                 });
             }
