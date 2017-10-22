@@ -13,6 +13,9 @@ import java.awt.event.ActionListener;
  */
 public class UserTableController implements ActionListener {
 
+    private PantryGui pantryGui;
+    private UserTableModel userTableModel;
+
     @Override
     public void actionPerformed(ActionEvent e) {
         System.out.println("ActionListener actionPerformed");
