@@ -240,6 +240,16 @@ public class PantryGui {
             c.gridx = 1;
             c.gridy = 3;
             dialogPanel.add(loginButton, c);
+            JLabel rLable = new JLabel("No account yet", SwingConstants.LEFT);
+            c = new GridBagConstraints();
+            c.gridx = 0;
+            c.gridy = 5;
+            dialogPanel.add(rLable, c);
+            JButton registerButton = new JButton("Register");
+            c = new GridBagConstraints();
+            c.gridx = 1;
+            c.gridy = 5;
+            dialogPanel.add(registerButton, c);
             loginDialog.setContentPane(dialogPanel);
             loginDialog.setVisible(true);
         }
