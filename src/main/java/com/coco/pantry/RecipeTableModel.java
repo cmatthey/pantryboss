@@ -4,7 +4,7 @@
  */
 package com.coco.pantry;
 
-import com.coco.pantry.SQLQuery.PreparedParameter;
+import com.coco.pantry.SQLQuery.Param;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -55,8 +55,8 @@ public class RecipeTableModel {
             if (account_id == -1) {
                 cachedrowset = sQLQuery.execute(QUERY_STATEMENT_RECIPE, null);
             } else {
-                ArrayList<PreparedParameter> params = new ArrayList<>();
-                params.add(sQLQuery.new PreparedParameter(account_id, Types.INTEGER));
+                ArrayList<Param> params = new ArrayList<>();
+                params.add(sQLQuery.new Param(account_id, Types.INTEGER));
                 cachedrowset = sQLQuery.execute(QUERY_STATEMENT_RECIPE_BY_ACCOUNT, params);
                 metadata = cachedrowset.getMetaData();
                 while (cachedrowset.next()) {

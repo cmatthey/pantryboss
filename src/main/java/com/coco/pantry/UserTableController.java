@@ -4,20 +4,28 @@
  */
 package com.coco.pantry;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
 /**
  *
  * @author Coco
  */
-public class UserTableController implements ActionListener {
+public class UserTableController {
 
     private PantryGui pantryGui;
     private UserTableModel userTableModel;
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        System.out.println("ActionListener actionPerformed");
+    public UserTableController(PantryGui pantryGui) {
+        this.pantryGui = pantryGui;
+        userTableModel = new UserTableModel();
+    }
+
+    public Object[] newUser(String username, String password) {
+        Object[] userInfo = userTableModel.runInsert(username, password);
+        pantryGui.setAccount_id((int) userInfo[0]);
+        return userInfo;
+    }
+
+    public boolean authenticate(String username, String passwor) {
+        Object[] userInfo = userTableModel.runSelect(username);
+        return passwor.equals((String) userInfo[2]);
     }
 }

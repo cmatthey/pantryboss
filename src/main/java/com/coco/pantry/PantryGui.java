@@ -4,7 +4,7 @@
  */
 package com.coco.pantry;
 
-import com.coco.pantry.SQLQuery.PreparedParameter;
+import com.coco.pantry.SQLQuery.Param;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
@@ -51,14 +51,16 @@ public class PantryGui {
     public static final String QUERY_STATEMENT_ACCOUNT
             = "SELECT account_id FROM account WHERE username = ? AND password = ?";
 
-    private int account_id;
-    private String username;
+    private int account_id = -1;
+    private String username = null;
+    private String password = null;
     private SQLQuery sQLQuery = new SQLQuery();
 
     private JFrame window;
     private JPanel cards;
     private JTable jTable;
     private ArrayList<JButton> recipeButtons;
+    private UserTableController userTableController;
     private InventoryTableController inventoryTableController;
     private RecipeTableController recipeTableController;
     private CachedRowSet cachedrowset = null;
@@ -66,6 +68,7 @@ public class PantryGui {
 
     public PantryGui(int account_id) {
         this.account_id = account_id;
+        userTableController = new UserTableController(this);
         inventoryTableController = new InventoryTableController(this);
         recipeTableController = new RecipeTableController(this);
         window = initComponents();
@@ -218,7 +221,7 @@ public class PantryGui {
             c.gridx = 1;
             c.gridy = 2;
             dialogPanel.add(passwordField, c);
-            JButton loginButton = new JButton("Login");
+            JButton loginButton = new JButton("Log in");
             loginButton.addActionListener((ActionEvent e) -> {
                 String username = usernameTextField.getText();
                 String password = String.valueOf(passwordField.getPassword());
@@ -245,14 +248,83 @@ public class PantryGui {
             c.gridx = 0;
             c.gridy = 5;
             dialogPanel.add(rLable, c);
-            JButton registerButton = new JButton("Register");
+            JButton signupButton = new JButton("Sign up");
             c = new GridBagConstraints();
             c.gridx = 1;
             c.gridy = 5;
-            dialogPanel.add(registerButton, c);
+            signupButton.addActionListener((ActionEvent e) -> {
+                loginDialog.setVisible(false);
+                loginDialog.dispose();
+                createSignupDialog(window);
+            });
+            dialogPanel.add(signupButton, c);
             loginDialog.setContentPane(dialogPanel);
             loginDialog.setVisible(true);
         }
+    }
+
+    public void createSignupDialog(JFrame window) {
+        JDialog signupDialog = new JDialog(window);
+        signupDialog.setSize(300, 300);
+        signupDialog.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        // TODO: Question - How to make the size automatically the right size
+//            loginDialog.pack();
+        JPanel dialogPanel = new JPanel(new GridBagLayout());
+        JLabel errLabel = new JLabel("", SwingConstants.LEFT);
+        errLabel.setForeground(Color.red);
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 1;
+        c.gridy = 0;
+        dialogPanel.add(errLabel, c);
+        JLabel uLabel = new JLabel("Username", SwingConstants.LEFT);
+        c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 1;
+        dialogPanel.add(uLabel, c);
+        JTextField usernameTextField = new JTextField(10);
+        usernameTextField.setToolTipText("Enter Username");
+        usernameTextField.setMinimumSize(usernameTextField.getPreferredSize());
+        c = new GridBagConstraints();
+        c.gridx = 1;
+        c.gridy = 1;
+        dialogPanel.add(usernameTextField, c);
+        JLabel pLabel = new JLabel("New Password", SwingConstants.LEFT);
+        c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 2;
+        dialogPanel.add(pLabel, c);
+        JPasswordField passwordField = new JPasswordField(10);
+        passwordField.setToolTipText("Enter Password");
+        passwordField.setMinimumSize(passwordField.getPreferredSize());
+        c = new GridBagConstraints();
+        c.gridx = 1;
+        c.gridy = 2;
+        dialogPanel.add(passwordField, c);
+        JButton signupButton = new JButton("Sign up");
+        signupButton.addActionListener((ActionEvent e) -> {
+            System.out.println("source: " + e.getSource());
+            String username = usernameTextField.getText();
+            String password = String.valueOf(passwordField.getPassword());
+            int account_id = authenticate(username, password);
+            if (username == "used user name") {
+                errLabel.setText("Login failed. Please try again.");
+                usernameTextField.setText("");
+                passwordField.setText("");
+            } else {
+                recipeTableController.account_idChanged();
+                setRecipeImages();
+                inventoryTableController.account_idChanged();
+                updateTable(jTable);
+                signupDialog.setVisible(false);
+                signupDialog.dispose();
+            }
+        });
+        c = new GridBagConstraints();
+        c.gridx = 1;
+        c.gridy = 3;
+        dialogPanel.add(signupButton, c);
+        signupDialog.setContentPane(dialogPanel);
+        signupDialog.setVisible(true);
     }
 
     public int createConfirmOptionPane(String dish) {
@@ -264,9 +336,9 @@ public class PantryGui {
     }
 
     private int authenticate(String username, String password) {
-        ArrayList<PreparedParameter> params = new ArrayList<>();
-        params.add(sQLQuery.new PreparedParameter(username, Types.VARCHAR));
-        params.add(sQLQuery.new PreparedParameter(password, Types.VARCHAR));
+        ArrayList<Param> params = new ArrayList<>();
+        params.add(sQLQuery.new Param(username, Types.VARCHAR));
+        params.add(sQLQuery.new Param(password, Types.VARCHAR));
 
         try {
             cachedrowset = sQLQuery.execute(QUERY_STATEMENT_ACCOUNT, params);

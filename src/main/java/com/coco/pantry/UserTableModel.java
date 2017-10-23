@@ -4,7 +4,12 @@
  */
 package com.coco.pantry;
 
+import com.coco.pantry.SQLQuery.Param;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Arrays;
 import javax.sql.rowset.CachedRowSet;
 
 /**
@@ -13,29 +18,40 @@ import javax.sql.rowset.CachedRowSet;
  */
 public class UserTableModel {
 
-    public static final String QUERY_STATEMENT_ACCOUNT
-            = "SELECT account_id FROM account WHERE username = ? AND password = ?";
+    public static final String QUERY_STATEMENT
+            = "SELECT account_id, username, password FROM account WHERE username = ?";
+    public static final String INSERT_STATEMENT
+            = "INSERT INTO account SET (username, password) VALUES (?, ?)";
 
-    private int account_id = -1;
-    private String username = null;
-//    private Map<Integer, Object[]> dishes = new TreeMap<>();
-    private SQLQuery sQLQuery;
+    private Object[] userInfo;
+    private SQLQuery sQLQuery = new SQLQuery();
     private CachedRowSet cachedrowset = null;
     private ResultSetMetaData metadata = null;
 
-    public UserTableModel(int account_id) {
-        this.account_id = account_id;
-        sQLQuery = new SQLQuery();
-        run();
-    }
+    public Object[] runSelect(String username) {
+        userInfo = new Object[]{-1, null, null};
+        cachedrowset = sQLQuery.execute(QUERY_STATEMENT, (ArrayList<Param>) Arrays.asList(sQLQuery.new Param(username, Types.VARCHAR)));
+        if (cachedrowset.size() > 1) {
+            try {
+                userInfo = new Object[]{cachedrowset.getInt("account_id"),
+                    cachedrowset.getString("username"),
+                    cachedrowset.getString("password")};
+            } catch (SQLException e) {
+                e.printStackTrace();
 
-    public void setAccount_id(int account_id) {
-        if (account_id != this.account_id) {
-            this.account_id = account_id;
-            run();
+            }
         }
+        return userInfo;
     }
 
-    private void run() {
+    public Object[] runInsert(String username, String password) {
+        runSelect(username);
+        if ((int) userInfo[0] != -1) {
+            cachedrowset = sQLQuery.execute(INSERT_STATEMENT, (ArrayList<Param>) Arrays.asList(
+                    sQLQuery.new Param(username, Types.VARCHAR),
+                    sQLQuery.new Param(username, Types.VARCHAR)));
+
+        }
+        return runSelect(username);
     }
 }

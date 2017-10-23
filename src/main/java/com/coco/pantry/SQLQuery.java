@@ -22,7 +22,7 @@ public class SQLQuery {
 
     static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
 
-    public CachedRowSet execute(String queryStr, ArrayList<PreparedParameter> params) {
+    public CachedRowSet execute(String queryStr, ArrayList<Param> params) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         CachedRowSet cachedRowSet = null;
@@ -85,12 +85,12 @@ public class SQLQuery {
         return cachedRowSet;
     }
 
-    public class PreparedParameter {
+    public class Param {
 
         public Object value;
         public int type;
 
-        public PreparedParameter(Object value, int type) {
+        public Param(Object value, int type) {
             this.value = value;
             this.type = type;
         }

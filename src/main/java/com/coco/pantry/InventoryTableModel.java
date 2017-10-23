@@ -4,7 +4,7 @@
  */
 package com.coco.pantry;
 
-import com.coco.pantry.SQLQuery.PreparedParameter;
+import com.coco.pantry.SQLQuery.Param;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -45,8 +45,8 @@ public class InventoryTableModel extends AbstractTableModel {
     }
 
     private void runSelect() {
-        ArrayList<PreparedParameter> params = new ArrayList<>();
-        params.add(sQLQuery.new PreparedParameter(account_id, Types.INTEGER));
+        ArrayList<Param> params = new ArrayList<>();
+        params.add(sQLQuery.new Param(account_id, Types.INTEGER));
         cachedrowsetSelect = sQLQuery.execute(QUERY_STATEMENT_INVENTORY, params);
         numrows = cachedrowsetSelect.size();
         try {
@@ -58,10 +58,10 @@ public class InventoryTableModel extends AbstractTableModel {
     }
 
     private void runUpdate(int quantity, int inventory_id) {
-        ArrayList<PreparedParameter> params = new ArrayList<>();
-        params.add(sQLQuery.new PreparedParameter(quantity, Types.INTEGER));
-        params.add(sQLQuery.new PreparedParameter(account_id, Types.INTEGER));
-        params.add(sQLQuery.new PreparedParameter(inventory_id, Types.INTEGER));
+        ArrayList<Param> params = new ArrayList<>();
+        params.add(sQLQuery.new Param(quantity, Types.INTEGER));
+        params.add(sQLQuery.new Param(account_id, Types.INTEGER));
+        params.add(sQLQuery.new Param(inventory_id, Types.INTEGER));
         cachedrowsetUpdate = sQLQuery.execute(UPDATE_STATEMENT_INVENTORY, params);
     }
 
