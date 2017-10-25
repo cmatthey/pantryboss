@@ -1,6 +1,5 @@
 /*
  * Copywrite(c) 2017 Coco Matthey
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software  *
  */
 package com.coco.pantry;
 
@@ -49,6 +48,7 @@ public class SQLQuery {
                     }
                 }
             }
+//            System.out.print(preparedStatement);
             hasResultSet = preparedStatement.execute();
             connection.commit();
             ResultSet result = preparedStatement.getResultSet();

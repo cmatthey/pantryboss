@@ -1,10 +1,8 @@
 /*
  * Copywrite(c) 2017 Coco Matthey
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software  *
  */
 package com.coco.pantry;
 
-import com.coco.pantry.SQLQuery.Param;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
@@ -15,8 +13,6 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.net.URL;
 import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
@@ -79,9 +75,11 @@ public class PantryGui {
     }
 
     public void setAccount_id(int account_id) {
-        if (account_id != this.account_id) {
-            this.account_id = account_id;
-        }
+        this.account_id = account_id;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public JFrame initWindow(String title, int width, int height) {
@@ -170,7 +168,7 @@ public class PantryGui {
             JMenuItem jMenuItem = new JMenuItem(text);
             jMenuItem.addActionListener((ActionEvent e) -> {
                 account_id = -1;
-                recipeTableController.account_idChanged();
+                recipeTableController.updateAccount_id();
                 setRecipeImages();
                 CardLayout cardLayout = (CardLayout) cards.getLayout();
                 cardLayout.show(cards, "Cook");
@@ -225,13 +223,14 @@ public class PantryGui {
             loginButton.addActionListener((ActionEvent e) -> {
                 String username = usernameTextField.getText();
                 String password = String.valueOf(passwordField.getPassword());
-                int account_id = authenticate(username, password);
+//                int account_id = authenticate(username, password);
+                userTableController.authenticate(username, password);
                 if (account_id == -1) {
                     errLabel.setText("Login failed. Please try again.");
                     usernameTextField.setText("");
                     passwordField.setText("");
                 } else {
-                    recipeTableController.account_idChanged();
+                    recipeTableController.updateAccount_id();
                     setRecipeImages();
                     inventoryTableController.account_idChanged();
                     updateTable(jTable);
@@ -302,16 +301,15 @@ public class PantryGui {
         dialogPanel.add(passwordField, c);
         JButton signupButton = new JButton("Sign up");
         signupButton.addActionListener((ActionEvent e) -> {
-            System.out.println("source: " + e.getSource());
             String username = usernameTextField.getText();
             String password = String.valueOf(passwordField.getPassword());
-            int account_id = authenticate(username, password);
-            if (username == "used user name") {
-                errLabel.setText("Login failed. Please try again.");
+            userTableController.newUser(username, password);
+            if (account_id == -1) {
+                errLabel.setText("Username is taken. Please try again.");
                 usernameTextField.setText("");
                 passwordField.setText("");
             } else {
-                recipeTableController.account_idChanged();
+                recipeTableController.updateAccount_id();
                 setRecipeImages();
                 inventoryTableController.account_idChanged();
                 updateTable(jTable);
@@ -333,32 +331,6 @@ public class PantryGui {
                 "Confirm your choice",
                 JOptionPane.YES_NO_OPTION);
         return choice;
-    }
-
-    private int authenticate(String username, String password) {
-        ArrayList<Param> params = new ArrayList<>();
-        params.add(sQLQuery.new Param(username, Types.VARCHAR));
-        params.add(sQLQuery.new Param(password, Types.VARCHAR));
-
-        try {
-            cachedrowset = sQLQuery.execute(QUERY_STATEMENT_ACCOUNT, params);
-            if (cachedrowset.size() != 1) {
-                account_id = -1;
-            } else {
-                if (cachedrowset.next()) {
-                    account_id = cachedrowset.getInt("account_id");
-                    this.username = username;
-                    // TODO: delete
-                    System.out.println("Found user " + account_id + " " + username);
-                } else {
-                    account_id = -1;
-                }
-            }
-        } catch (SQLException ex) {
-            account_id = -1;
-            ex.printStackTrace();
-        }
-        return account_id;
     }
 
     private void setRecipeImages() {

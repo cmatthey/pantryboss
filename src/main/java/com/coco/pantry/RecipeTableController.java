@@ -1,8 +1,9 @@
 /*
  * Copywrite(c) 2017 Coco Matthey
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software  *
  */
 package com.coco.pantry;
+
+import java.util.Map;
 
 /**
  *
@@ -22,7 +23,11 @@ public class RecipeTableController {
         return recipeTableModel;
     }
 
-    public void account_idChanged() {
+    public void updateAccount_id() {
         recipeTableModel.setAccount_id(pantryGui.getAccount_id());
+    }
+
+    public Map<Integer, Object[]> getDishes() {
+        return recipeTableModel.getDishes();
     }
 }
