@@ -67,14 +67,10 @@ public class SQLQuery {
             e.printStackTrace();
         } finally {
             try {
-                if (preparedStatement != null) {
+                if (!preparedStatement.isClosed()) {
                     preparedStatement.close();
                 }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-            try {
-                if (connection != null) {
+                if (!connection.isClosed()) {
                     connection.close();
                     System.out.println("Closed connection");
                 }
