@@ -1,6 +1,3 @@
-/*
- * Copywrite(c) 2017 Coco Matthey
- */
 package com.coco.pantry;
 
 import java.awt.BorderLayout;
@@ -44,13 +41,9 @@ public class PantryGui {
 
     public static final int ROW_COUNT = 2;
     public static final int COL_COUNT = 2;
-    public static final String QUERY_STATEMENT_ACCOUNT
-            = "SELECT account_id FROM account WHERE username = ? AND password = ?";
 
     private int account_id = -1;
     private String username = null;
-    private String password = null;
-    private SQLQuery sQLQuery = new SQLQuery();
 
     private JFrame window;
     private JPanel cards;
@@ -95,15 +88,15 @@ public class PantryGui {
     }
 
     public JFrame initWindow(String title) {
-        return initWindow(title, 600, 600);
+        return initWindow(title, 800, 800);
     }
 
     public JFrame initWindow() {
-        return this.initWindow("", 600, 600);
+        return this.initWindow("", 800, 800);
     }
 
     public JFrame initComponents() {
-        JFrame window = initWindow("Pantry Boss", 600, 600);
+        JFrame window = initWindow("Pantry Boss", 800, 800);
         cards = createCardsPanel();
         window.setContentPane(cards);
         createLoginDialog(window);
@@ -121,7 +114,6 @@ public class PantryGui {
         recipeButtons = new ArrayList<>();
         for (int i = 0; i < ROW_COUNT * COL_COUNT; i++) {
             JButton button = new JButton();
-            // TODO: troubleshot
             button.setSize(525, 350);
             recipeButtons.add(button);
             grid.add(button);
@@ -333,29 +325,21 @@ public class PantryGui {
         return choice;
     }
 
-    private void setRecipeImages() {
+    public void setRecipeImages() {
         RecipeTableModel recipeTableModel = recipeTableController.getRecipeTableModel();
-        TreeMap<Integer, Object[]> dishes = (TreeMap) recipeTableModel.getDishes();
+        TreeMap<Integer, String[]> dishes = (TreeMap) recipeTableModel.getDishesSimple();
         Iterator iterator = dishes.entrySet().iterator();
-        int[] grocery_ids = new int[dishes.size()];
-        int[] quantity = new int[dishes.size()];
         for (int i = 0; i < ROW_COUNT * COL_COUNT && i < dishes.size(); i++) {
             if (iterator.hasNext()) {
-                Map.Entry<Integer, Object[]> entry = (Map.Entry) iterator.next();
-                URL resource = this.getClass().getResource((String) entry.getValue()[1]);
+                Map.Entry<Integer, String[]> entry = (Map.Entry) iterator.next();
+                URL resource = this.getClass().getResource(entry.getValue()[1]);
                 JButton button = recipeButtons.get(i);
                 button.setIcon(new ImageIcon(resource));
                 button.setEnabled(true);
                 button.addActionListener((ActionEvent e) -> {
-                    int choice = createConfirmOptionPane((String) entry.getValue()[0]);
+                    int choice = createConfirmOptionPane(entry.getValue()[0]);
                     if (choice == JOptionPane.YES_OPTION) {
-                        System.out.println((String) entry.getValue()[0] + " is selected");
-                        // TODO: to further deduct the inventory
-                        // https://stackoverflow.com/questions/25674737/mysql-update-multiple-rows-with-different-values-in-one-query
-//                        String cols = String.join(",", (String) (dishes.values())[3]);
-                        String update_inventory_statement
-                                = "UPDATE inventory SET quantity = "
-                                + "ELT(grocery_id, 15, 15) WHERE grocery_id in (1, 2) AND account_id = ?";
+                        recipeTableController.consume();
                     }
                 });
             }

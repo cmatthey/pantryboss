@@ -1,7 +1,3 @@
-/* 
- * Copywrite(c) 2017 Coco Matthey
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software  * 
- */
 /**
  * Author:  Coco
  * Created: Oct 8, 2017
@@ -11,9 +7,9 @@
  * Account
  */
 INSERT INTO account(username, password)
-    VALUES('coco', 'replaceitwithyourpassword');
+    VALUES('coco', 'coco');
 INSERT INTO account(username, password)
-    VALUES('radhika', 'replaceitwithyourpassword');
+    VALUES('radhika', 'radhika');
 
 /**
  * Recipe

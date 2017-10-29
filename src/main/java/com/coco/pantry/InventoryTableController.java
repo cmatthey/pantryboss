@@ -1,6 +1,3 @@
-/*
- * Copywrite(c) 2017 Coco Matthey
- */
 package com.coco.pantry;
 
 import javax.sql.RowSetEvent;

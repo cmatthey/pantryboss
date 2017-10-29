@@ -1,6 +1,3 @@
-/*
- * Copywrite(c) 2017 Coco Matthey
- */
 package com.coco.pantry;
 
 import com.coco.pantry.SQLQuery.Param;

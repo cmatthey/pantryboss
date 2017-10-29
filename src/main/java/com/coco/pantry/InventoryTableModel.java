@@ -1,6 +1,3 @@
-/*
- * Copywrite(c) 2017 Coco Matthey
- */
 package com.coco.pantry;
 
 import com.coco.pantry.SQLQuery.Param;
@@ -19,7 +16,7 @@ import javax.swing.table.AbstractTableModel;
 public class InventoryTableModel extends AbstractTableModel {
 
     public static final String EDIABLE_COLUMN_NAME = "quantity";
-    public static final String QUERY_STATEMENT_INVENTORY = "SELECT inventory_id, item, quantity, recorder_point FROM inventory, grocery WHERE account_id = ? AND inventory.grocery_id = grocery.grocery_id";
+    public static final String QUERY_STATEMENT_INVENTORY = "SELECT inventory_id, item, quantity, recorder_point FROM inventory iv, grocery g WHERE account_id = ? AND iv.grocery_id = g.grocery_id";
     public static final String UPDATE_STATEMENT_INVENTORY = "UPDATE inventory SET quantity = ? WHERE account_id = ? AND inventory_id = ?";
 
     private int account_id;

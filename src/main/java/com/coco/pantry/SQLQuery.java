@@ -1,6 +1,3 @@
-/*
- * Copywrite(c) 2017 Coco Matthey
- */
 package com.coco.pantry;
 
 import com.sun.rowset.CachedRowSetImpl;
@@ -10,7 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.ArrayList;
+import java.util.List;
 import javax.sql.rowset.CachedRowSet;
 
 /**
@@ -21,7 +18,7 @@ public class SQLQuery {
 
     static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
 
-    public CachedRowSet execute(String queryStr, ArrayList<Param> params) {
+    public CachedRowSet execute(String queryStr, List<Param> params) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         CachedRowSet cachedRowSet = null;
@@ -48,7 +45,10 @@ public class SQLQuery {
                     }
                 }
             }
-//            System.out.print(preparedStatement);
+            boolean debug = true;
+            if (debug) {
+                System.out.println(preparedStatement);
+            }
             hasResultSet = preparedStatement.execute();
             connection.commit();
             ResultSet result = preparedStatement.getResultSet();
@@ -76,11 +76,11 @@ public class SQLQuery {
             try {
                 if (connection != null) {
                     connection.close();
+                    System.out.println("Closed connection");
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-            System.out.println("Closed connection");
         }
         return cachedRowSet;
     }

@@ -1,6 +1,3 @@
-/*
- * Copywrite(c) 2017 Coco Matthey
- */
 package com.coco.pantry;
 
 import java.util.Map;
@@ -27,7 +24,12 @@ public class RecipeTableController {
         recipeTableModel.setAccount_id(pantryGui.getAccount_id());
     }
 
-    public Map<Integer, Object[]> getDishes() {
-        return recipeTableModel.getDishes();
+    public Map<Integer, String[]> getDishes() {
+        return recipeTableModel.getDishesSimple();
+    }
+
+    public void consume() {
+        recipeTableModel.consume(pantryGui.getAccount_id());
+        pantryGui.setRecipeImages();
     }
 }
