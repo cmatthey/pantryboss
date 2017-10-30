@@ -3,6 +3,7 @@ package com.coco.pantry;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -79,7 +80,7 @@ public class PantryGui {
         window = new JFrame();
         window.setJMenuBar(createMenuBar());
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        window.setSize(width, height);
+        window.setMinimumSize(new Dimension(width, height));
         window.setTitle(title);
         window.setContentPane(createCardsPanel());
         window.setVisible(true);
@@ -87,19 +88,13 @@ public class PantryGui {
         return window;
     }
 
-    public JFrame initWindow(String title) {
-        return initWindow(title, 800, 800);
-    }
-
-    public JFrame initWindow() {
-        return this.initWindow("", 800, 800);
-    }
-
     public JFrame initComponents() {
-        JFrame window = initWindow("Pantry Boss", 800, 800);
+        JFrame window = initWindow("Pantry Boss", 1100, 1100);
         cards = createCardsPanel();
         window.setContentPane(cards);
-        createLoginDialog(window);
+        if (account_id == -1) {
+            createLoginDialog(window);
+        }
         return window;
     }
 
@@ -107,7 +102,7 @@ public class PantryGui {
         JPanel card = new JPanel(new BorderLayout());
         JLabel title = new JLabel("What's for dinner?", SwingConstants.CENTER);
         title.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 60));
-        title.setForeground(Color.ORANGE);
+        title.setForeground(Color.RED);
         card.add(title, BorderLayout.NORTH);
         JPanel grid = new JPanel();
         grid.setLayout(new GridLayout(ROW_COUNT, COL_COUNT, 20, 20));
@@ -118,7 +113,7 @@ public class PantryGui {
             recipeButtons.add(button);
             grid.add(button);
         }
-        setRecipeImages();
+        displayRecipes();
         card.add(grid, BorderLayout.CENTER);
         return card;
     }
@@ -126,8 +121,6 @@ public class PantryGui {
     public JPanel createInventoryPanel() {
         JPanel card = new JPanel(new BorderLayout());
         jTable = new JTable(inventoryTableController.getInventoryTableModel());
-        jTable.getModel().addTableModelListener(inventoryTableController);
-        jTable.getSelectionModel().addListSelectionListener(inventoryTableController);
         JScrollPane jScrollPane = new JScrollPane(jTable);
         card.add(jScrollPane, BorderLayout.CENTER);
         return card;
@@ -149,6 +142,8 @@ public class PantryGui {
         for (String text : menuItemManage) {
             JMenuItem jMenuItem = new JMenuItem(text);
             jMenuItem.addActionListener((ActionEvent e) -> {
+                recipeTableController.updateAccount_id();
+                inventoryTableController.updateAccount_id();
                 CardLayout cardLayout = (CardLayout) cards.getLayout();
                 cardLayout.show(cards, text);
             });
@@ -160,8 +155,9 @@ public class PantryGui {
             JMenuItem jMenuItem = new JMenuItem(text);
             jMenuItem.addActionListener((ActionEvent e) -> {
                 account_id = -1;
+                username = "";
                 recipeTableController.updateAccount_id();
-                setRecipeImages();
+                inventoryTableController.updateAccount_id();
                 CardLayout cardLayout = (CardLayout) cards.getLayout();
                 cardLayout.show(cards, "Cook");
                 createLoginDialog(window);
@@ -173,93 +169,83 @@ public class PantryGui {
     }
 
     public void createLoginDialog(JFrame window) {
-        if (account_id == -1) {
-            JDialog loginDialog = new JDialog(window);
-            loginDialog.setSize(300, 300);
-            loginDialog.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-            // TODO: Question - How to make the size automatically the right size
-//            loginDialog.pack();
-            JPanel dialogPanel = new JPanel(new GridBagLayout());
-            JLabel errLabel = new JLabel("", SwingConstants.LEFT);
-            errLabel.setForeground(Color.red);
-            GridBagConstraints c = new GridBagConstraints();
-            c.gridx = 1;
-            c.gridy = 0;
-            dialogPanel.add(errLabel, c);
-            JLabel uLabel = new JLabel("Username", SwingConstants.LEFT);
-            c = new GridBagConstraints();
-            c.gridx = 0;
-            c.gridy = 1;
-            dialogPanel.add(uLabel, c);
-            JTextField usernameTextField = new JTextField(10);
-            usernameTextField.setToolTipText("Enter Username");
-            usernameTextField.setMinimumSize(usernameTextField.getPreferredSize());
-            c = new GridBagConstraints();
-            c.gridx = 1;
-            c.gridy = 1;
-            dialogPanel.add(usernameTextField, c);
-            // TODO: Question - does not seem difference
-            JLabel pLabel = new JLabel("Password", SwingConstants.LEFT);
-            c = new GridBagConstraints();
-            c.gridx = 0;
-            c.gridy = 2;
-            dialogPanel.add(pLabel, c);
-            JPasswordField passwordField = new JPasswordField(10);
-            passwordField.setToolTipText("Enter Password");
-            passwordField.setMinimumSize(passwordField.getPreferredSize());
-            c = new GridBagConstraints();
-            c.gridx = 1;
-            c.gridy = 2;
-            dialogPanel.add(passwordField, c);
-            JButton loginButton = new JButton("Log in");
-            loginButton.addActionListener((ActionEvent e) -> {
-                String username = usernameTextField.getText();
-                String password = String.valueOf(passwordField.getPassword());
-//                int account_id = authenticate(username, password);
-                userTableController.authenticate(username, password);
-                if (account_id == -1) {
-                    errLabel.setText("Login failed. Please try again.");
-                    usernameTextField.setText("");
-                    passwordField.setText("");
-                } else {
-                    recipeTableController.updateAccount_id();
-                    setRecipeImages();
-                    inventoryTableController.account_idChanged();
-                    updateTable(jTable);
-                    loginDialog.setVisible(false);
-                    loginDialog.dispose();
-                }
-            });
-            c = new GridBagConstraints();
-            c.gridx = 1;
-            c.gridy = 3;
-            dialogPanel.add(loginButton, c);
-            JLabel rLable = new JLabel("No account yet", SwingConstants.LEFT);
-            c = new GridBagConstraints();
-            c.gridx = 0;
-            c.gridy = 5;
-            dialogPanel.add(rLable, c);
-            JButton signupButton = new JButton("Sign up");
-            c = new GridBagConstraints();
-            c.gridx = 1;
-            c.gridy = 5;
-            signupButton.addActionListener((ActionEvent e) -> {
+        JDialog loginDialog = new JDialog(window);
+        loginDialog.setSize(300, 300);
+        loginDialog.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        JPanel dialogPanel = new JPanel(new GridBagLayout());
+        JLabel errLabel = new JLabel("", SwingConstants.LEFT);
+        errLabel.setForeground(Color.red);
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 1;
+        c.gridy = 0;
+        dialogPanel.add(errLabel, c);
+        JLabel uLabel = new JLabel("Username", SwingConstants.LEFT);
+        c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 1;
+        dialogPanel.add(uLabel, c);
+        JTextField usernameTextField = new JTextField(10);
+        usernameTextField.setToolTipText("Enter Username");
+        usernameTextField.setMinimumSize(usernameTextField.getPreferredSize());
+        c = new GridBagConstraints();
+        c.gridx = 1;
+        c.gridy = 1;
+        dialogPanel.add(usernameTextField, c);
+        JLabel pLabel = new JLabel("Password", SwingConstants.LEFT);
+        c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 2;
+        dialogPanel.add(pLabel, c);
+        JPasswordField passwordField = new JPasswordField(10);
+        passwordField.setToolTipText("Enter Password");
+        passwordField.setMinimumSize(passwordField.getPreferredSize());
+        c = new GridBagConstraints();
+        c.gridx = 1;
+        c.gridy = 2;
+        dialogPanel.add(passwordField, c);
+        JButton loginButton = new JButton("Log in");
+        loginButton.addActionListener((ActionEvent e) -> {
+            String username = usernameTextField.getText();
+            String password = String.valueOf(passwordField.getPassword());
+            userTableController.authenticate(username, password);
+            if (account_id == -1) {
+                errLabel.setText("Login failed. Please try again.");
+                usernameTextField.setText("");
+                passwordField.setText("");
+            } else {
+                recipeTableController.updateAccount_id();
+                inventoryTableController.updateAccount_id();
                 loginDialog.setVisible(false);
                 loginDialog.dispose();
-                createSignupDialog(window);
-            });
-            dialogPanel.add(signupButton, c);
-            loginDialog.setContentPane(dialogPanel);
-            loginDialog.setVisible(true);
-        }
+            }
+        });
+        c = new GridBagConstraints();
+        c.gridx = 1;
+        c.gridy = 3;
+        dialogPanel.add(loginButton, c);
+        JLabel rLable = new JLabel("No account yet", SwingConstants.LEFT);
+        c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 5;
+        dialogPanel.add(rLable, c);
+        JButton signupButton = new JButton("Sign up");
+        c = new GridBagConstraints();
+        c.gridx = 1;
+        c.gridy = 5;
+        signupButton.addActionListener((ActionEvent e) -> {
+            loginDialog.setVisible(false);
+            loginDialog.dispose();
+            createSignupDialog(window);
+        });
+        dialogPanel.add(signupButton, c);
+        loginDialog.setContentPane(dialogPanel);
+        loginDialog.setVisible(true);
     }
 
     public void createSignupDialog(JFrame window) {
         JDialog signupDialog = new JDialog(window);
         signupDialog.setSize(300, 300);
         signupDialog.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        // TODO: Question - How to make the size automatically the right size
-//            loginDialog.pack();
         JPanel dialogPanel = new JPanel(new GridBagLayout());
         JLabel errLabel = new JLabel("", SwingConstants.LEFT);
         errLabel.setForeground(Color.red);
@@ -295,18 +281,22 @@ public class PantryGui {
         signupButton.addActionListener((ActionEvent e) -> {
             String username = usernameTextField.getText();
             String password = String.valueOf(passwordField.getPassword());
-            userTableController.newUser(username, password);
-            if (account_id == -1) {
-                errLabel.setText("Username is taken. Please try again.");
+            if (username.isEmpty()) {
+                errLabel.setText("Username cannot be empty. Please try again.");
                 usernameTextField.setText("");
                 passwordField.setText("");
             } else {
-                recipeTableController.updateAccount_id();
-                setRecipeImages();
-                inventoryTableController.account_idChanged();
-                updateTable(jTable);
-                signupDialog.setVisible(false);
-                signupDialog.dispose();
+                userTableController.newUser(username, password);
+                if (account_id == -1) {
+                    errLabel.setText("Username is taken. Please try again.");
+                    usernameTextField.setText("");
+                    passwordField.setText("");
+                } else {
+                    recipeTableController.updateAccount_id();
+                    inventoryTableController.updateAccount_id();
+                    signupDialog.setVisible(false);
+                    signupDialog.dispose();
+                }
             }
         });
         c = new GridBagConstraints();
@@ -325,33 +315,48 @@ public class PantryGui {
         return choice;
     }
 
-    public void setRecipeImages() {
-        RecipeTableModel recipeTableModel = recipeTableController.getRecipeTableModel();
-        TreeMap<Integer, String[]> dishes = (TreeMap) recipeTableModel.getDishesSimple();
-        Iterator iterator = dishes.entrySet().iterator();
-        for (int i = 0; i < ROW_COUNT * COL_COUNT && i < dishes.size(); i++) {
-            if (iterator.hasNext()) {
-                Map.Entry<Integer, String[]> entry = (Map.Entry) iterator.next();
-                URL resource = this.getClass().getResource(entry.getValue()[1]);
+    public void displayRecipes() {
+        if (account_id == -1) {
+            for (int i = 0; i < ROW_COUNT * COL_COUNT; i++) {
+                String placeholderImg = "/images/recipe.png";
+                URL resource = this.getClass().getResource(placeholderImg);
                 JButton button = recipeButtons.get(i);
+                button.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 20));
+                button.setHorizontalTextPosition(SwingConstants.CENTER);
+                button.setVerticalTextPosition(SwingConstants.BOTTOM);
+                button.setText("Pick a recipe");
                 button.setIcon(new ImageIcon(resource));
-                button.setEnabled(true);
-                button.addActionListener((ActionEvent e) -> {
-                    int choice = createConfirmOptionPane(entry.getValue()[0]);
-                    if (choice == JOptionPane.YES_OPTION) {
-                        recipeTableController.consume();
-                    }
-                });
+                button.setEnabled(false);
+            }
+        } else {
+            RecipeTableModel recipeTableModel = recipeTableController.getRecipeTableModel();
+            TreeMap<Integer, String[]> dishes = (TreeMap) recipeTableModel.getDishesSimple();
+            Iterator iterator = dishes.entrySet().iterator();
+            for (int i = 0; i < ROW_COUNT * COL_COUNT /*&& i < dishes.size()*/; i++) {
+                JButton button = recipeButtons.get(i);
+                if (iterator.hasNext()) {
+                    Map.Entry<Integer, String[]> entry = (Map.Entry) iterator.next();
+                    URL resource = this.getClass().getResource(entry.getValue()[1]);
+                    button.setText(entry.getValue()[0]);
+                    button.setIcon(new ImageIcon(resource));
+                    button.setEnabled(true);
+                    button.addActionListener((ActionEvent e) -> {
+                        int choice = createConfirmOptionPane(entry.getValue()[0]);
+                        if (choice == JOptionPane.YES_OPTION) {
+                            recipeTableController.consume();
+                        }
+                    });
+                } else {
+                    String placeholderImg = "/images/recipe.png";
+                    URL resource = this.getClass().getResource(placeholderImg);
+                    button.setText("Pick a recipe");
+                    button.setIcon(new ImageIcon(resource));
+                }
             }
         }
     }
 
-    public void updateTable(JTable jTable) {
-        jTable.setModel(inventoryTableController.getInventoryTableModel());
-    }
-
     public static void main(String[] args) {
-        // TODO: serialization
         PantryGui pantry = new PantryGui(-1);
     }
 }

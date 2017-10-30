@@ -16,7 +16,8 @@ import javax.sql.rowset.CachedRowSet;
  */
 public class SQLQuery {
 
-    static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
+    private final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
+    private final String databaseURL = String.format("jdbc:mysql://localhost/%s?useSSL=false&useJDBCCompliantTimezoneShift=true&&serverTimezone=UTC", DBConstants.DATABASE_NAME);
 
     public CachedRowSet execute(String queryStr, List<Param> params) {
         Connection connection = null;
@@ -27,7 +28,6 @@ public class SQLQuery {
         try {
             Class.forName(JDBC_DRIVER);
             System.out.println("Connecting to database");
-            String databaseURL = String.format("jdbc:mysql://localhost/%s?useSSL=false&useJDBCCompliantTimezoneShift=true&&serverTimezone=UTC", DBConstants.DATABASE_NAME);
             connection = DriverManager.getConnection(databaseURL, DBConstants.MYSQL_USERNAME, DBConstants.MYSQL_PASSWORD);
             connection.setAutoCommit(false);
 

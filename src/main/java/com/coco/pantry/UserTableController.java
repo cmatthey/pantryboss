@@ -35,4 +35,3 @@ public class UserTableController {
         return false;
     }
 }
-// TODO: ensure username cannot be empty

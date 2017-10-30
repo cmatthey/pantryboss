@@ -22,6 +22,7 @@ public class RecipeTableController {
 
     public void updateAccount_id() {
         recipeTableModel.setAccount_id(pantryGui.getAccount_id());
+        pantryGui.displayRecipes();
     }
 
     public Map<Integer, String[]> getDishes() {
@@ -30,6 +31,6 @@ public class RecipeTableController {
 
     public void consume() {
         recipeTableModel.consume(pantryGui.getAccount_id());
-        pantryGui.setRecipeImages();
+        pantryGui.displayRecipes();
     }
 }

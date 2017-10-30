@@ -50,5 +50,3 @@ public class UserTableModel /* implements ButtonModel, Document */ {
         return runSelect(username);
     }
 }
-
-// TODO: ensure username cannot be empty

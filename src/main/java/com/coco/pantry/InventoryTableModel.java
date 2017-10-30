@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import javax.sql.rowset.CachedRowSet;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 
 /**
@@ -34,10 +33,8 @@ public class InventoryTableModel extends AbstractTableModel {
     }
 
     public void setAccount_id(int account_id) {
-        if (this.account_id != account_id) {
-            this.account_id = account_id;
-            runSelect();
-        }
+        this.account_id = account_id;
+        runSelect();
     }
 
     private void runSelect() {
@@ -99,17 +96,13 @@ public class InventoryTableModel extends AbstractTableModel {
             switch (metadata.getColumnType(col + 1)) {
                 case Types.INTEGER:
                     cachedrowsetSelect.updateObject(col + 1, Integer.parseInt((String) value));
-                    System.out.println(String.format("Set value (int) at %d, %d", row + 1, col + 1));
                     break;
                 case Types.VARCHAR:
                     cachedrowsetSelect.updateObject(col + 1, (String) value);
-                    System.out.println(String.format("Set value (String) at %d, %d", row + 1, col + 1));
                     break;
                 default:
-                    System.out.println(String.format("Set value (Object) at %d, %d", row + 1, col + 1));
                     cachedrowsetSelect.updateObject(col + 1, value);
             }
-//            cachedrowset.acceptChanges(sQLQuery.getConnection());
             runUpdate(Integer.parseInt((String) value), cachedrowsetSelect.getInt("inventory_id"));
         } catch (SQLException e) {
             e.printStackTrace();
@@ -137,10 +130,5 @@ public class InventoryTableModel extends AbstractTableModel {
             e.printStackTrace();
         }
         return super.getColumnName(col);
-    }
-
-    @Override
-    public void addTableModelListener(TableModelListener l) {
-        //TODO: cleanup
     }
 }

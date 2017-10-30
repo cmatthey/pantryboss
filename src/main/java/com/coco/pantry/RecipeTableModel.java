@@ -43,10 +43,8 @@ public class RecipeTableModel {
     }
 
     public void setAccount_id(int account_id) {
-        if (account_id != this.account_id) {
-            this.account_id = account_id;
-            viewRecipes();
-        }
+        this.account_id = account_id;
+        viewRecipes();
     }
 
     public Map<Integer, String[]> getDishesSimple() {
@@ -69,12 +67,14 @@ public class RecipeTableModel {
                     String[] row = new String[2];
                     row[0] = cachedrowset.getString("dish");
                     row[1] = cachedrowset.getString("img");
-                    // TODO: remove these 2 cells
                     int inventory_id = cachedrowset.getInt("inventory_id");
                     int grocery_id = cachedrowset.getInt("grocery_id");
-//                    row[4] = cachedrowset.getInt("total");
+                    /* Query used here: SELECT r.recipe_id, r.dish, r.img, iv.inventory_id, g.grocery_id, iv.quantity AS total, ig.quantity AS needed FROM account a, inventory iv, grocery g, ingredient ig, recipe r WHERE a.account_id = iv.account_id AND iv.grocery_id = g.grocery_id AND ig.grocery_id = g.grocery_id AND ig.recipe_id = r.recipe_id AND iv.quantity >= ig.quantity AND a.account_id = 5
+                     * The CachedRowSet does not recognized AS total and AS needed
+                     * We have to use cachedrowset.getInt(6) instead of getInt("total")
+                     * and cachedrowset.getInt(7) instead of getInt("needed")
+                     */
                     int total = cachedrowset.getInt(6);
-//                    row[5] = cachedrowset.getInt("needed");
                     int needed = cachedrowset.getInt(7);
                     dishesSimple.put(recipe_id, row);
                     if (dishesComplete.containsKey(recipe_id)) {
@@ -84,11 +84,6 @@ public class RecipeTableModel {
                         m.put(grocery_id, total - needed);
                         dishesComplete.put(recipe_id, m);
                     }
-                }
-                // TODO: delete
-                cachedrowset.first();
-                while (cachedrowset.next()) {
-                    System.out.println(cachedrowset.getString("dish"));
                 }
             }
         } catch (SQLException e) {
