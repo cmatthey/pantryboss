@@ -9,36 +9,3 @@ Supports multiple users
 Persistent storage by MySQL
 Design
 This project uses Model–view–controller paradigm. It uses JDBC, MySQL and Java Swing.
-
-UI Design
-Log In and Sign up dialog
-
-Log In error message
-
-Recipe matcher
-Recipes available to a user are filtered based on pantry inventory.
-
-
-
-Inventory
-
-Menu
- 
-          
-Database Schema
-UML Activity diagram
-UML Sequence Diagram
-Log in and Sign up flow
-
-Recipe picker and Restock inventory flow
-
------UML Class diagram
-
-Implementation
-The source code can be found here at github
-References
-The Java™ Tutorials
-A Tutorial For MySQL and JDBC, Radhika Grover
-Credit
-https://www.pexels.com/search/food/
-https://www.flaticon.com/free-icon/
